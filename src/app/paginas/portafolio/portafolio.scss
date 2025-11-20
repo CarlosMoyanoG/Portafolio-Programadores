@@ -1,0 +1,46 @@
+.contenedor-progra
+{
+    margin: 0rem;
+    display: flex;
+    flex-direction: column;
+}
+
+button {
+    padding: 0.4rem 0.9rem;
+    border-radius: 120px;
+    border: none;
+    cursor: pointer;
+    background-color: #000039;
+    color: rgb(255, 255, 255);
+    font-weight: 600;
+    margin-top: auto;
+
+    width: 30%;    
+    margin-top: 3rem;
+    align-self: center; 
+    font-size: medium;
+}
+
+.especialidad{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.descripcion{
+    margin-top: 0rem;
+}
+
+h1{
+    font-weight: 900;
+}
+
+.prog-no-encontrado {
+  display: flex;
+  justify-content: center; 
+  align-items: center;    
+  font-size: x-large;
+  
+  width: 100%;
+  height: 100%; 
+  text-align: center;
+}

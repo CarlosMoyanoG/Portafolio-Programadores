@@ -9,7 +9,7 @@ export class Programadores {
   private programadores: Programador[] = [
     {
       id: 1,
-      nombre: 'Ana Pérez',
+      nombre: 'Paz Guerrero',
       especialidad: 'Frontend con Angular',
       descripcion: 'Desarrollo de SPA, maquetación responsive y consumo de APIs REST.',
       proyectos: [
@@ -36,10 +36,6 @@ export class Programadores {
       ]
     }
   ];
-
-  constructor() {
-    console.log('✅ Servicio Programadores creado');
-  }
 
   getProgramadores(): Programador[] {
     return this.programadores;

@@ -1,1 +1,79 @@
-<p>agendar works!</p>
+<h1>Agendar Asesoría</h1>
+<p>
+  Completa el siguiente formulario para solicitar una asesoría con uno de nuestros programadores.
+</p>
+
+<form (ngSubmit)="onSubmit()" #f="ngForm" class="form-asesoria">
+
+  <label>
+    Programador
+    <select
+      name="programadorId"
+      [(ngModel)]="form.programadorId"
+      required
+    >
+      <option value="0" disabled>Selecciona un programador</option>
+      <option *ngFor="let prog of programadores" [value]="prog.id">
+        {{ prog.nombre }} – {{ prog.especialidad }}
+      </option>
+    </select>
+  </label>
+
+  <label>
+    Tu nombre
+    <input
+      type="text"
+      name="nombreCliente"
+      [(ngModel)]="form.nombreCliente"
+      required
+    />
+  </label>
+
+  <label>
+    Correo electrónico
+    <input
+      type="email"
+      name="emailCliente"
+      [(ngModel)]="form.emailCliente"
+      required
+    />
+  </label>
+
+  <label>
+    Fecha
+    <input
+      type="date"
+      name="fecha"
+      [(ngModel)]="form.fecha"
+      required
+    />
+  </label>
+
+  <label>
+    Hora
+    <input
+      type="time"
+      name="hora"
+      [(ngModel)]="form.hora"
+      required
+    />
+  </label>
+
+  <label>
+    Describe brevemente tu proyecto
+    <textarea
+      name="descripcionProyecto"
+      rows="4"
+      [(ngModel)]="form.descripcionProyecto"
+      required
+    ></textarea>
+  </label>
+
+  <button type="submit" [disabled]="f.invalid">
+    Enviar solicitud
+  </button>
+</form>
+
+<p *ngIf="mensajeExito" class="mensaje-exito">
+  {{ mensajeExito }}
+</p>

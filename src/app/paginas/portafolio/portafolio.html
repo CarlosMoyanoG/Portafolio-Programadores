@@ -1,4 +1,4 @@
-<div *ngIf="programador as prog; else noEncontrado">
+<div class="contenedor-progra" *ngIf="programador as prog; else noEncontrado">
   <h1>{{ prog.nombre }}</h1>
   <p class="especialidad">{{ prog.especialidad }}</p>
   <p class="descripcion">{{ prog.descripcion }}</p>
@@ -12,12 +12,14 @@
     </li>
   </ul>
 
-  <button routerLink="/asesorias">
+  <button routerLink="/agendar">
     Agendar asesoría con {{ prog.nombre }}
   </button>
 </div>
 
-<ng-template #noEncontrado>
-  <p>Programador no encontrado.</p>
+<ng-template class="prog-no-encontrado" #noEncontrado>
+  <div class="prog-no-encontrado">
+    <p>Programador no encontrado.</p>
+  </div>
 </ng-template>
 
