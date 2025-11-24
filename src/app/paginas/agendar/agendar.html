@@ -1,79 +1,117 @@
-<h1>Agendar Asesoría</h1>
-<p>
-  Completa el siguiente formulario para solicitar una asesoría con uno de nuestros programadores.
-</p>
+<div class="agenda-container">
+  <div class="card form-card">
+    <div class="card-header">
+      <h1>Agendar Asesoría</h1>
+      <p class="subtitulo">
+        Completa el siguiente formulario para solicitar una asesoría con uno de nuestros programadores.
+      </p>
+    </div>
 
-<form (ngSubmit)="onSubmit()" #f="ngForm" class="form-asesoria">
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="form-asesoria">
 
-  <label>
-    Programador
-    <select
-      name="programadorId"
-      [(ngModel)]="form.programadorId"
-      required
-    >
-      <option value="0" disabled>Selecciona un programador</option>
-      <option *ngFor="let prog of programadores" [ngValue]="prog.id">
-        {{ prog.nombre }} – {{ prog.especialidad }}
-      </option>
-    </select>
-  </label>
+      <!-- PROGRAMADOR -->
+      <div class="form-group">
+        <label>Programador</label>
+        <div class="select-wrapper">
+          <select name="programadorId" [(ngModel)]="form.programadorId" (ngModelChange)="onProgramadorChange($event)" required>
+            <option [ngValue]="0" disabled>Selecciona un programador</option>
+            <option *ngFor="let prog of programadores" [ngValue]="prog.id">
+              {{ prog.nombre }} – {{ prog.especialidad }}
+            </option>
+          </select>
+        </div>
+      </div>
 
-  <label>
-    Tu nombre
-    <input
-      type="text"
-      name="nombreCliente"
-      [(ngModel)]="form.nombreCliente"
-      required
-    />
-  </label>
+      <!-- HORARIOS DISPONIBLES DEL PROGRAMADOR -->
+      <div class="form-group" *ngIf="disponibilidadesProgramador.length">
+        <label>Horarios disponibles</label>
+        <div class="select-wrapper">
+          <select
+            name="slotId"
+            [(ngModel)]="selectedSlotId"
+            (ngModelChange)="onSlotChange($event)"
+          >
+            <option [ngValue]="0">Selecciona un horario</option>
+            <option *ngFor="let d of disponibilidadesProgramador" [ngValue]="d.id">
+              {{ d.fecha }} – {{ d.hora }}
+            </option>
+          </select>
+        </div>
+        <small>
+          Al elegir un horario se rellenarán automáticamente la fecha y la hora de la asesoría.
+        </small>
+      </div>
 
-  <label>
-    Correo electrónico
-    <input
-      type="email"
-      name="emailCliente"
-      [(ngModel)]="form.emailCliente"
-      required
-    />
-  </label>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tu nombre</label>
+          <input
+            type="text"
+            name="nombreCliente"
+            [(ngModel)]="form.nombreCliente"
+            required
+            placeholder="Ej. María González"
+          />
+        </div>
 
-  <label>
-    Fecha
-    <input
-      type="date"
-      name="fecha"
-      [(ngModel)]="form.fecha"
-      required
-    />
-  </label>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input
+            type="email"
+            name="emailCliente"
+            [(ngModel)]="form.emailCliente"
+            required
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+      </div>
 
-  <label>
-    Hora
-    <input
-      type="time"
-      name="hora"
-      [(ngModel)]="form.hora"
-      required
-    />
-  </label>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input
+            type="date"
+            name="fecha"
+            [(ngModel)]="form.fecha"
+            required
+          />
+        </div>
 
-  <label>
-    Describe brevemente tu proyecto
-    <textarea
-      name="descripcionProyecto"
-      rows="4"
-      [(ngModel)]="form.descripcionProyecto"
-      required
-    ></textarea>
-  </label>
+        <div class="form-group">
+          <label>Hora</label>
+          <input
+            type="time"
+            name="hora"
+            [(ngModel)]="form.hora"
+            required
+          />
+        </div>
+      </div>
 
-  <button type="submit" [disabled]="f.invalid">
-    Enviar solicitud
-  </button>
-</form>
+      <div class="form-group">
+        <label>Describe brevemente tu proyecto</label>
+        <textarea
+          name="descripcionProyecto"
+          rows="4"
+          [(ngModel)]="form.descripcionProyecto"
+          required
+          placeholder="Cuéntanos qué necesitas..."
+        ></textarea>
+      </div>
 
-<p *ngIf="mensajeExito" class="mensaje-exito">
-  {{ mensajeExito }}
-</p>
+      <div class="form-footer">
+        <button type="submit" [disabled]="f.invalid">
+          Enviar solicitud
+        </button>
+      </div>
+
+    </form>
+
+    <div *ngIf="mensajeExito" class="mensaje-container">
+      <p class="mensaje-exito">
+        <i class="fas fa-check-circle"></i> {{ mensajeExito }}
+      </p>
+    </div>
+
+  </div>
+</div>

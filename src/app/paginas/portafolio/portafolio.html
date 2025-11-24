@@ -1,21 +1,57 @@
-<div class="contenedor-progra" *ngIf="programador as prog; else noEncontrado">
+<div *ngIf="programador as prog; else noEncontrado">
   <h1>{{ prog.nombre }}</h1>
   <p class="especialidad">{{ prog.especialidad }}</p>
   <p class="descripcion">{{ prog.descripcion }}</p>
 
-  <h2>Proyectos</h2>
+  <h2>Proyectos académicos</h2>
   <ul>
-    <li *ngFor="let proyecto of prog.proyectos">
-      <h3>{{ proyecto.titulo }}</h3>
+    <li *ngFor="let proyecto of proyectosAcademicos">
+      <h3>{{ proyecto.nombre }}</h3>
       <p>{{ proyecto.descripcion }}</p>
-      <small>Tecnologías: {{ proyecto.tecnologias.join(', ') }}</small>
+      <p><strong>Rol:</strong> {{ proyecto.participacion }}</p>
+      <p><strong>Tecnologías:</strong> {{ proyecto.tecnologias.join(', ') }}</p>
+
+      <p *ngIf="proyecto.repoUrl">
+        Repo:
+        <a [href]="proyecto.repoUrl" target="_blank">
+          {{ proyecto.repoUrl }}
+        </a>
+      </p>
+
+      <p *ngIf="proyecto.demoUrl">
+        Demo:
+        <a [href]="proyecto.demoUrl" target="_blank">
+          {{ proyecto.demoUrl }}
+        </a>
+      </p>
+    </li>
+  </ul>
+
+  <h2>Proyectos laborales</h2>
+  <ul>
+    <li *ngFor="let proyecto of proyectosLaborales">
+      <h3>{{ proyecto.nombre }}</h3>
+      <p>{{ proyecto.descripcion }}</p>
+      <p><strong>Rol:</strong> {{ proyecto.participacion }}</p>
+      <p><strong>Tecnologías:</strong> {{ proyecto.tecnologias.join(', ') }}</p>
+
+      <p *ngIf="proyecto.repoUrl">
+        Repo:
+        <a [href]="proyecto.repoUrl" target="_blank">
+          {{ proyecto.repoUrl }}
+        </a>
+      </p>
+
+      <p *ngIf="proyecto.demoUrl">
+        Demo:
+        <a [href]="proyecto.demoUrl" target="_blank">
+          {{ proyecto.demoUrl }}
+        </a>
+      </p>
     </li>
   </ul>
 </div>
 
-<ng-template class="prog-no-encontrado" #noEncontrado>
-  <div class="prog-no-encontrado">
-    <p>Programador no encontrado.</p>
-  </div>
+<ng-template #noEncontrado>
+  <p>Programador no encontrado.</p>
 </ng-template>
-

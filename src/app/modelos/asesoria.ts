@@ -1,3 +1,5 @@
+export type EstadoAsesoria = 'pendiente' | 'aprobada' | 'rechazada';
+
 export interface Asesoria {
   id: number;
   programadorId: number;
@@ -6,4 +8,5 @@ export interface Asesoria {
   fecha: string;
   hora: string;
   descripcionProyecto: string;
+  estado: EstadoAsesoria;   
 }

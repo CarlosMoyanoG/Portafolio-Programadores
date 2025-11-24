@@ -1,23 +1,58 @@
-<h1>Portafolio de Servicios</h1>
-<p>
-    Encuentra aquí los perfiles de nuestros programadores y agenda una asesoría según las necesidades de tu proyecto
-</p>
+<div class="portfolio-container">
+  <div class="header-section">
+    <h1>Portafolio de Servicios</h1>
+    <p class="subtitulo">
+      Encuentra aquí los perfiles de nuestros programadores y agenda una asesoría según las necesidades de tu proyecto.
+    </p>
+  </div>
 
-<section class="tarjetas">
-  <article class="tarjeta" *ngFor="let prog of programadores">
-    <h2>{{ prog.nombre }}</h2>
-    <p class="especialidad">{{ prog.especialidad }}</p>
-    <p class="descripcion">{{ prog.descripcion }}</p>
+  <section class="tarjetas">
+    <article class="tarjeta" *ngFor="let prog of programadores">
+      
+      <div class="tarjeta-header">
+        <img
+          *ngIf="prog.fotoUrl"
+          [src]="prog.fotoUrl"
+          [alt]="prog.nombre"
+          class="avatar-programador"
+        />
+        <div class="tarjeta-titulo">
+          <h2>{{ prog.nombre }}</h2>
+          <p class="especialidad">{{ prog.especialidad }}</p>
+        </div>
+      </div>
 
-    <h3>Proyectos destacados</h3>
-    <ul>
-      <li *ngFor="let proyecto of prog.proyectos">
-        <strong>{{ proyecto.titulo }}:</strong>  {{ proyecto.descripcion }}
-      </li>
-    </ul>
+      <div class="tarjeta-body">
+        <p class="descripcion">{{ prog.descripcion }}</p>
 
-    <button [routerLink]="['/portafolios', prog.id]">
-      Ver portafolio
-    </button>
-  </article>
-</section>
+        <div class="links-contacto" *ngIf="prog.emailContacto || prog.githubUrl || prog.linkedinUrl">
+          <a *ngIf="prog.emailContacto" [href]="'mailto:' + prog.emailContacto" title="Enviar Email">
+            <i class="fas fa-envelope"></i>
+          </a>
+          <a *ngIf="prog.githubUrl" [href]="prog.githubUrl" target="_blank" title="Ver GitHub">
+            <i class="fab fa-github"></i>
+          </a>
+          <a *ngIf="prog.linkedinUrl" [href]="prog.linkedinUrl" target="_blank" title="Ver LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </div>
+
+        <div class="proyectos-section">
+          <h3>Proyectos destacados</h3>
+          <ul>
+            <li *ngFor="let proyecto of prog.proyectos">
+              <strong>{{ proyecto.nombre }}:</strong> {{ proyecto.descripcion }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tarjeta-footer">
+        <button [routerLink]="['/portafolios', prog.id]">
+          Ver portafolio completo
+        </button>
+      </div>
+
+    </article>
+  </section>
+</div>

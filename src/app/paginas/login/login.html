@@ -1,1 +1,40 @@
-<p>login works!</p>
+<div class="contenedor-login">
+  <div class="login-card">
+    
+    <div class="login-header">
+      <div class="icon-circle">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h1>Iniciar sesión</h1>
+      <p class="subtitulo">
+        Elige un tipo de usuario para ingresar al sistema (modo demostración).
+      </p>
+    </div>
+
+    <div class="botones-login">
+      <button class="btn-login btn-admin" (click)="loginAdmin()">
+        <i class="fas fa-user-shield"></i> Entrar como Administrador
+      </button>
+
+      <button class="btn-login btn-programador" (click)="loginProgramador()">
+        <i class="fas fa-code"></i> Entrar como Programador
+      </button>
+
+      <div class="separador">o</div>
+
+      <button class="btn-login btn-visitante" (click)="entrarComoVisitante()">
+        <i class="fas fa-user"></i> Continuar como Visitante
+      </button>
+    </div>
+
+    <div *ngIf="mensaje" class="mensaje-container">
+      <p class="login-mensaje">
+        <i class="fas fa-info-circle"></i> {{ mensaje }}
+      </p>
+    </div>
+
+    <p class="login-nota">
+      Nota: Más adelante, esta pantalla usará autenticación real con Google (Firebase).
+    </p>
+  </div>
+</div>

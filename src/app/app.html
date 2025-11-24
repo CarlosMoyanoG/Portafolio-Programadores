@@ -3,9 +3,9 @@
 
   <div>
     <nav class="nav">
+      <a routerLink="/login" routerLinkActive="active"> Login </a>
       <a routerLink="/inicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"> Inicio </a>
       <a routerLink="/agendar" routerLinkActive="active"> Agendar Asesoria</a>
-      <a routerLink="/login" routerLinkActive="active"> Login </a>
 
       <a *ngIf="auth.esAdmin()"
         routerLink="/admin"
@@ -19,17 +19,6 @@
         Programador
       </a>
     </nav>
-  </div>
-
-  <div class="contenedor-btn-usuarios">
-    <span class="rol-usuario">
-      Rol actual: {{ auth.usuarioActual.rol }} ({{ auth.usuarioActual.nombre }})
-    </span>
-    <div class="acciones">
-      <button (click)="auth.loginComoAdmin()">Simular admin</button>
-      <button (click)="auth.loginComoProgramador()">Simular programador</button>
-      <button (click)="auth.cerrarSesion()">Visitante</button>
-    </div>
   </div>
 </header>
 

@@ -1,93 +1,171 @@
-<h1>Panel de administrador</h1>
+<div class="dashboard-container">
+  <h1>Panel de administrador</h1>
 
+  <div class="card panel-asesorias">
+    <div class="card-header">
+      <h2>Asesorías agendadas</h2>
+    </div>
+    
+    <div class="card-body table-responsive">
+      <table class="tabla-asesorias" *ngIf="asesorias.length; else sinAsesorias">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Programador</th>
+            <th>Cliente</th>
+            <th>Correo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of asesorias">
+            <td>{{ a.id }}</td>
+            <td>{{ a.programadorNombre || ('ID ' + a.programadorId) }}</td>
+            <td>{{ a.nombreCliente }}</td>
+            <td>{{ a.emailCliente }}</td>
+            <td>{{ a.fecha }}</td>
+            <td>{{ a.hora }}</td>
+            <td>
+              <span class="badge" [ngClass]="a.estado">
+                {{ a.estado | titlecase }}
+              </span>
+            </td>
+            <td>{{ a.descripcionProyecto }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-
-<div class="layout-principal">
-  <div class="columna-izquierda">
-    <h2>Asesorías agendadas</h2>
-    <table class="tabla-asesorias" *ngIf="asesorias.length; else sinAsesorias">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Programador</th>
-          <th>Cliente</th>
-          <th>Correo</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Descripción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of asesorias">
-          <td>{{ a.id }}</td>
-          <td>{{ a.programadorNombre || ('ID ' + a.programadorId) }}</td>
-          <td>{{ a.nombreCliente }}</td>
-          <td>{{ a.emailCliente }}</td>
-          <td>{{ a.fecha }}</td>
-          <td>{{ a.hora }}</td>
-          <td>{{ a.descripcionProyecto }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <ng-template #sinAsesorias>
-      <p>Todavía no hay asesorías agendadas.</p>
-    </ng-template>
+      <ng-template #sinAsesorias>
+        <div class="empty-state">
+          <p>Todavía no hay asesorías agendadas.</p>
+        </div>
+      </ng-template>
+    </div>
   </div>
 
+  <div class="grid-gestion">
+    
+    <div class="card panel-programadores">
+      <div class="card-header">
+        <h2>Gestión de programadores</h2>
+      </div>
+      
+      <div class="card-body">
+        <div class="form-section">
+          <h3>Registrar nuevo programador</h3>
+          <form (ngSubmit)="crearProgramador()" #fProg="ngForm" class="form-estilizado">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" name="nombre" [(ngModel)]="nuevoProgramador.nombre" required>
+            </div>
 
-  <div class="columna-derecha">
-    <h2>Gestión de programadores</h2>
-    <section class="seccion-programadores">
-      <div class="form-programador">
-        <h3>Registrar nuevo programador</h3>
+            <div class="form-group">
+              <label>Especialidad</label>
+              <input type="text" name="especialidad" [(ngModel)]="nuevoProgramador.especialidad" required/>
+            </div>
 
-        <form (ngSubmit)="crearProgramador()" #fProg="ngForm">
-          <label>
-            Nombre
-            <input
-              type="text"
-              name="nombre"
-              [(ngModel)]="nuevoProgramador.nombre"
-              required
-            />
-          </label>
+            <div class="form-group">
+              <label>Descripción</label>
+              <textarea name="descripcion" rows="3" [(ngModel)]="nuevoProgramador.descripcion" placeholder="Breve descripción..."></textarea>
+            </div>
 
-          <label>
-            Especialidad
-            <input
-              type="text"
-              name="especialidad"
-              [(ngModel)]="nuevoProgramador.especialidad"
-              required
-            />
-          </label>
+            <button type="submit" [disabled]="fProg.invalid" class="btn-primary">
+              Guardar programador
+            </button>
+          </form>
+        </div>
 
-          <label>
-            Descripción
-            <textarea
-              name="descripcion"
-              rows="3"
-              [(ngModel)]="nuevoProgramador.descripcion"
-            ></textarea>
-          </label>
+        <hr class="separador">
 
-          <button type="submit" [disabled]="fProg.invalid">
-            Guardar programador
-          </button>
-        </form>
+        <div class="lista-section">
+          <h3>Programadores registrados</h3>
+          <ul class="lista-items">
+            <li *ngFor="let p of programadores">
+              <div class="item-info">
+                <strong>{{ p.nombre }}</strong>
+                <span class="badge-light">{{ p.especialidad }}</span>
+              </div>
+              <p class="texto-pequeño">{{ p.descripcion }}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel-horarios">
+      <div class="card-header">
+        <h2>Horarios de disponibilidad</h2>
       </div>
 
-      <div class="lista-programadores">
-        <h3>Programadores registrados</h3>
+      <div class="card-body">
+        <p *ngIf="mensajeDisponibilidad" class="mensaje-exito">
+          {{ mensajeDisponibilidad }}
+        </p>
 
-        <ul>
-          <li *ngFor="let p of programadores">
-            <strong>{{ p.nombre }}</strong> – {{ p.especialidad }}
-            <p class="texto-pequeño">{{ p.descripcion }}</p>
-          </li>
-        </ul>
+        <div class="form-section">
+          <h3>Registrar horario</h3>
+          <form (ngSubmit)="crearDisponibilidad()" #fDisp="ngForm" class="form-estilizado">
+            <div class="form-group">
+              <label>Programador</label>
+              <select name="programadorId" [(ngModel)]="nuevaDisponibilidad.programadorId" required>
+                <option [ngValue]="0">Selecciona un programador</option>
+                <option *ngFor="let p of programadores" [ngValue]="p.id">
+                  {{ p.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fecha</label>
+                <input type="date" name="fecha" [(ngModel)]="nuevaDisponibilidad.fecha" required>
+              </div>
+              <div class="form-group">
+                <label>Hora</label>
+                <input type="time" name="hora" [(ngModel)]="nuevaDisponibilidad.hora" required>
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="fDisp.invalid" class="btn-primary">
+              Guardar horario
+            </button>
+          </form>
+        </div>
+
+        <hr class="separador">
+
+        <div class="lista-section">
+          <h3>Horarios registrados</h3>
+          <div class="table-responsive-small">
+            <table class="tabla-simple" *ngIf="disponibilidades.length; else sinHorarios">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Programador</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of disponibilidades">
+                  <td>{{ d.id }}</td>
+                  <td>{{ obtenerNombreProgramador(d.programadorId) }}</td>
+                  <td>{{ d.fecha }}</td>
+                  <td>{{ d.hora }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <ng-template #sinHorarios>
+            <p class="text-muted">Aún no se han registrado horarios.</p>
+          </ng-template>
+        </div>
       </div>
-    </section>
+    </div>
+
   </div>
 </div>

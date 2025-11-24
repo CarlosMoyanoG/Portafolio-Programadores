@@ -2,20 +2,23 @@ import { Component } from '@angular/core';
 import { Programador } from '../../modelos/programador';
 import { Programadores } from '../../servicios/programadores';
 import { Asesorias } from '../../servicios/asesorias';
-import { Asesoria } from '../../modelos/asesoria';
+import { Asesoria, EstadoAsesoria  } from '../../modelos/asesoria';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 const ID_PROGRAMADOR_ACTUAL = 1;
 
 @Component({
   selector: 'app-admin-programador',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   standalone: true,
   templateUrl: './admin-programador.html',
   styleUrl: './admin-programador.scss',
 })
 
 export class AdminProgramador {
+
+  mensajeExito = '';
 
   asesorias: Asesoria[] = [];
   programador: Programador | undefined;
@@ -38,4 +41,18 @@ export class AdminProgramador {
       this.asesorias = listaFiltrada;
     }
   }
+
+    actualizarEstado(a: Asesoria) {
+      this.asesoriasService.actualizarAsesoria(a.id, {
+        estado: a.estado,
+      });
+
+      this.mensajeExito = `Asesoría #${a.id} actualizada correctamente`;
+      
+      setTimeout(() => {
+        this.mensajeExito = '';
+      }, 3000);
+    }
+
+    estadosPosibles: EstadoAsesoria[] = ['pendiente', 'aprobada', 'rechazada'];
 }

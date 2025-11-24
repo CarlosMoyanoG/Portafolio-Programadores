@@ -1,19 +1,17 @@
+import { Proyecto } from "./proyecto";
+
 export interface Programador {
   id: number;
   nombre: string;
   especialidad: string;
   descripcion: string;
+
+  fotoUrl?: string;
+  emailContacto?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  sitioWeb?: string;
+
   proyectos: Proyecto[];
 }
-
-// FALTA FOTO DE PERFIL, ENLACES DE CONTACTO Y REDES SOCIALES
-
-export interface Proyecto{
-    id: number;
-    titulo: string;
-    descripcion: string;
-    tecnologias: string[];
-}
-
-// FALTA ENLACES REPOS Y ENLACES A DESPLIEGUES
 

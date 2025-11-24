@@ -1,44 +1,85 @@
-<div *ngIf="programador; else sinProgramador">
-  <h1>Panel de programador</h1>
+<div class="programmer-dashboard" *ngIf="programador; else sinProgramador">
+  
+  <div class="dashboard-header">
+    <h1>Panel de programador</h1>
+  </div>
 
-  <section class="info-programador">
-    <h2>{{ programador.nombre }}</h2>
-    <p class="especialidad">{{ programador.especialidad }}</p>
-    <p class="descripcion">{{ programador.descripcion }}</p>
-  </section>
+  <div class="card profile-card">
+    <div class="card-body profile-content">
+      <div class="profile-icon">
+        <i class="fas fa-user-circle"></i> </div>
+      <div class="profile-info">
+        <h2>{{ programador.nombre }}</h2>
+        <p class="especialidad">{{ programador.especialidad }}</p>
+        <p class="descripcion">{{ programador.descripcion }}</p>
+      </div>
+    </div>
+  </div>
 
-  <section class="asesorias">
-    <h2>Mis asesorías agendadas</h2>
+  <div class="card table-card">
+    <div class="card-header">
+      <h2>Mis asesorías agendadas</h2>
+    </div>
 
-    <table class="tabla-asesorias" *ngIf="asesorias.length; else sinAsesorias">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Cliente</th>
-          <th>Correo</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Descripción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of asesorias">
-          <td>{{ a.id }}</td>
-          <td>{{ a.nombreCliente }}</td>
-          <td>{{ a.emailCliente }}</td>
-          <td>{{ a.fecha }}</td>
-          <td>{{ a.hora }}</td>
-          <td>{{ a.descripcionProyecto }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="card-body table-responsive">
+      <table class="tabla-asesorias" *ngIf="asesorias.length; else sinAsesorias">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Correo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Descripción</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of asesorias">
+            <td>{{ a.id }}</td>
+            <td><strong>{{ a.nombreCliente }}</strong></td>
+            <td>{{ a.emailCliente }}</td>
+            <td>{{ a.fecha }}</td>
+            <td>{{ a.hora }}</td>
+            <td>
+              <div class="select-wrapper">
+                <select [(ngModel)]="a.estado">
+                  <option *ngFor="let e of estadosPosibles" [ngValue]="e">
+                    {{ e | titlecase }}
+                  </option>
+                </select>
+              </div>
+            </td>
+            <td><div class="desc-truncada" title="{{a.descripcionProyecto}}">{{ a.descripcionProyecto }}</div></td>
+            <td class="text-center">
+              <button (click)="actualizarEstado(a)" class="btn-guardar">
+                Guardar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <ng-template #sinAsesorias>
-      <p>Todavía no tienes asesorías agendadas.</p>
-    </ng-template>
-  </section>
+      <ng-template #sinAsesorias>
+        <div class="empty-state">
+          <p>Todavía no tienes asesorías agendadas.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div *ngIf="mensajeExito" class="toast-notification">
+    <div class="toast-content">
+      <i class="fas fa-check-circle"></i>
+      <span>{{ mensajeExito }}</span>
+    </div>
+  </div>
+
 </div>
 
 <ng-template #sinProgramador>
-  <p>No se encontró información del programador actual.</p>
+  <div class="error-container">
+    <p>No se encontró información del programador actual.</p>
+  </div>
 </ng-template>
