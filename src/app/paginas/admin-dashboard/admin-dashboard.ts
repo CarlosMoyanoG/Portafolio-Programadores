@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { Asesoria } from '../../modelos/asesoria';
 import { Programadores } from '../../servicios/programadores';
 import { Asesorias } from '../../servicios/asesorias';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Disponibilidad } from '../../modelos/disponibilidad';
 import { Disponibilidades } from '../../servicios/disponibilidades';
 
@@ -14,12 +15,12 @@ import { Disponibilidades } from '../../servicios/disponibilidades';
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss',
 })
+export class AdminDashboard implements OnInit {
 
-export class AdminDashboard {
   asesorias: any[] = [];
   programadores: any[] = [];
   disponibilidades: Disponibilidad[] = [];
- 
+
   nuevoProgramador = {
     nombre: '',
     especialidad: '',
@@ -34,21 +35,33 @@ export class AdminDashboard {
 
   mensajeDisponibilidad = '';
 
-  constructor(private asesoriasService: Asesorias, private programadoresService: Programadores, private disponibilidadesService: Disponibilidades){
+  constructor( private asesoriasService: Asesorias, private programadoresService: Programadores, private disponibilidadesService: Disponibilidades) {
     this.programadores = this.programadoresService.getProgramadores();
-    const listaAsesorias = this.asesoriasService.getAsesorias();
+    this.disponibilidades = this.disponibilidadesService.getTodas();
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.cargarAsesorias();
+  }
+
+  // ====== ASESORÍAS (Firebase) ======
+
+  private async cargarAsesorias(): Promise<void> {
+    const listaProgramadores = this.programadoresService.getProgramadores();
+    const listaAsesorias: Asesoria[] = await this.asesoriasService.getAsesorias();
 
     this.asesorias = listaAsesorias.map(asesoria => {
-      const programadorEncontrado = this.programadores.find(p => p.id === asesoria.programadorId);
+      const programadorEncontrado = listaProgramadores.find(p => p.id === asesoria.programadorId);
       return {
         ...asesoria,
         programadorNombre: programadorEncontrado ? programadorEncontrado.nombre : 'Sin Asignar'
       };
     });
 
-    this.disponibilidades = this.disponibilidadesService.getTodas();
-    console.log('Asesorías:', this.asesorias);
-  } 
+    console.log('Asesorías desde Firestore:', this.asesorias);
+  }
+
+  // ====== PROGRAMADORES (en memoria) ======
 
   crearProgramador() {
     if (!this.nuevoProgramador.nombre || !this.nuevoProgramador.especialidad) {
@@ -72,10 +85,14 @@ export class AdminDashboard {
     };
   }
 
+  // ====== DISPONIBILIDADES (en memoria) ======
+
   crearDisponibilidad() {
-    if (!this.nuevaDisponibilidad.programadorId ||
-        !this.nuevaDisponibilidad.fecha ||
-        !this.nuevaDisponibilidad.hora) {
+    if (
+      !this.nuevaDisponibilidad.programadorId ||
+      !this.nuevaDisponibilidad.fecha ||
+      !this.nuevaDisponibilidad.hora
+    ) {
       alert('Selecciona programador, fecha y hora');
       return;
     }
@@ -95,12 +112,11 @@ export class AdminDashboard {
     };
 
     this.mensajeDisponibilidad = 'Horario registrado correctamente';
-    setTimeout(() => this.mensajeDisponibilidad = '', 3000);
+    setTimeout(() => (this.mensajeDisponibilidad = ''), 3000);
   }
 
   obtenerNombreProgramador(id: number): string {
     const programador = this.programadores.find(p => p.id === id);
     return programador ? programador.nombre : 'ID ' + id;
   }
-} 
-
+}

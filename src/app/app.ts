@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet, RouterLinkWithHref, RouterLinkActive, RouterLink } from '@angular/router';
+import { RouterOutlet, RouterLinkWithHref, RouterLinkActive, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { Autenticacion } from './servicios/autenticacion';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,17 @@ import { CommonModule } from '@angular/common';
 })
 export class App {
   protected readonly title = signal('ProyectoPortafolio');
-  constructor(public auth: Autenticacion){}
 
+  mostrarLayout = true;
+
+  constructor(public auth: Autenticacion, private router: Router){
+
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: any) => {
+        this.mostrarLayout = !e.urlAfterRedirects.startsWith('/login');
+      });
+  }
 }
+
+

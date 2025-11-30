@@ -7,6 +7,7 @@ import { Disponibilidad } from '../../modelos/disponibilidad';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Autenticacion } from '../../servicios/autenticacion';
 
 @Component({
   selector: 'app-agendar',
@@ -28,29 +29,36 @@ export class Agendar {
   };
 
   mensajeExito = '';
-
+  sinHorarios = false;
   disponibilidadesProgramador: Disponibilidad[] = [];
   selectedSlotId = 0;
 
-  constructor(
-    private programadoresService: Programadores,
-    private asesoriasService: Asesorias,
-    private disponibilidadesService: Disponibilidades,
-    private route: ActivatedRoute
-  ) {
+  constructor(private programadoresService: Programadores, private asesoriasService: Asesorias, private disponibilidadesService: Disponibilidades, private route: ActivatedRoute, private Autenticacion: Autenticacion) {
     this.programadores = this.programadoresService.getProgramadores();
 
     const progIdParam = this.route.snapshot.queryParamMap.get('programadorId');
     if (progIdParam) {
       this.form.programadorId = +progIdParam;
-      this.cargarDisponibilidades(+progIdParam);
+      this.cargarDisponibilidades(this.form.programadorId);
+    }
+
+    const email = this.Autenticacion.usuarioActual.email;
+    if (email) {
+      this.form.emailCliente = email;
     }
   }
 
   cargarDisponibilidades(programadorId: number) {
     this.disponibilidadesProgramador =
-      this.disponibilidadesService.getPorProgramador(programadorId);
+    this.disponibilidadesService.getPorProgramador(programadorId);
     this.selectedSlotId = 0;
+
+    this.sinHorarios = this.disponibilidadesProgramador.length === 0;
+
+    if (this.sinHorarios) {
+      this.form.fecha = '';
+      this.form.hora = '';
+    }
   }
 
   onProgramadorChange(id: number) {
@@ -67,13 +75,13 @@ export class Agendar {
     }
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (!this.form.programadorId) {
       alert('Debes seleccionar un programador');
       return;
     }
 
-    this.asesoriasService.crearAsesoria({
+    await this.asesoriasService.crearAsesoria({
       programadorId: this.form.programadorId,
       nombreCliente: this.form.nombreCliente,
       emailCliente: this.form.emailCliente,
@@ -82,7 +90,7 @@ export class Agendar {
       descripcionProyecto: this.form.descripcionProyecto
     });
 
-    this.mensajeExito = 'Asesoría agendada correctamente';
+    this.mensajeExito = 'Tu solicitud fue enviada. Recibirás la confirmación del programador cuando apruebe o rechace la asesoría.';
 
     this.form.nombreCliente = '';
     this.form.emailCliente = '';

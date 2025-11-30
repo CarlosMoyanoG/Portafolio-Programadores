@@ -1,4 +1,4 @@
-<header class="header-principal">
+<header class="header-principal" *ngIf="mostrarLayout">
   <div class="titulo">Portafolios</div>
 
   <nav class="nav">
@@ -35,11 +35,11 @@
   </div>
 </header>
 
-<main class="contenido-principal">
+<main class="contenido-principal" [class.fullscreen]="!mostrarLayout">
   <router-outlet></router-outlet>
 </main>
 
-<footer>
+<footer *ngIf="mostrarLayout">
   Autor: Carlos Moyano Guevara | Programacion y Plataformas Web
 </footer>
 

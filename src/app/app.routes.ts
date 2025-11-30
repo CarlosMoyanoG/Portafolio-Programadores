@@ -11,7 +11,7 @@ import { adminGuard } from './guards/admin.guard';
 import { programadorGuard } from './guards/programador.guard';
 
 export const routes: Routes = [
-    {path: '', redirectTo: 'inicio', pathMatch: 'full'},
+    {path: '', redirectTo: 'login', pathMatch: 'full'},
     {path: 'inicio', component: PaginaInicio},
     {path: 'agendar', component: Agendar},
     {path: 'login', component: Login},

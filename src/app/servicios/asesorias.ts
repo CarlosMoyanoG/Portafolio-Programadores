@@ -1,32 +1,58 @@
 import { Injectable } from '@angular/core';
 import { Asesoria } from '../modelos/asesoria';
 
+import {
+  Firestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+} from '@angular/fire/firestore';
+
 @Injectable({
   providedIn: 'root',
 })
 
 export class Asesorias {
-  private asesorias: Asesoria[] = [];
-  private ultimoId = 0; //CONTADOR
+ 
+  private coleccionRef;
 
-  crearAsesoria(nueva: Omit<Asesoria, 'id' | 'estado'>){ //Extraer objeto excepto el id
-    this.ultimoId++;
-    const asesoria: Asesoria = { id: this.ultimoId, estado: 'pendiente', ...nueva};
-    this.asesorias.push(asesoria);
-    console.log("Asesoria creada: ", asesoria)
+  constructor(private firestore: Firestore) {
+    this.coleccionRef = collection(this.firestore, 'asesorias');
+  }
 
+  async crearAsesoria(nueva: Omit<Asesoria, 'id' | 'estado'>): Promise<Asesoria> {
+    const asesoria: Asesoria = {
+      id: Date.now(),      
+      estado: 'pendiente',
+      ...nueva,
+    };
+
+    await addDoc(this.coleccionRef, asesoria);
+    console.log('Asesoría creada:', asesoria);
     return asesoria;
+  } 
+
+  async getAsesorias(): Promise<Asesoria[]> {
+    const snap = await getDocs(this.coleccionRef);
+    return snap.docs.map(d => d.data() as Asesoria);
   }
 
-  getAsesorias(): Asesoria[] {
-    return this.asesorias;
-  }
+  async actualizarAsesoria(id: number, cambios: Partial<Asesoria>): Promise<void> {
+    const q = query(this.coleccionRef, where('id', '==', id));
+    const snap = await getDocs(q);
 
-  actualizarAsesoria(id: number, cambios: Partial<Asesoria>): void {
-    const index = this.asesorias.findIndex(a => a.id === id);
-    if (index !== -1) {
-      this.asesorias[index] = { ...this.asesorias[index], ...cambios };
-      console.log('Asesoría actualizada:', this.asesorias[index]);
+    if (snap.empty) {
+      console.warn('No se encontró asesoria con id', id);
+      return;
     }
+
+    const docRef = snap.docs[0].ref;
+    await updateDoc(docRef, cambios as any);
+
+    console.log('Asesoría actualizada en Firestore:', id, cambios);
   }
-} 
+
+}

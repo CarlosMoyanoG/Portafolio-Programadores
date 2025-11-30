@@ -76,6 +76,30 @@
     </div>
   </div>
 
+  <section class="notificacion-simulada" *ngIf="ultimaNotificacion">
+    <h2>Notificación simulada al cliente</h2>
+
+    <p>
+      <strong>Para:</strong>
+      {{ ultimaNotificacion.nombreCliente }} -
+      {{ ultimaNotificacion.emailCliente }}
+    </p>
+
+    <p><strong>Estado:</strong> {{ ultimaNotificacion.estado }}</p>
+
+    <p><strong>Mensaje que se enviaría (correo/WhatsApp):</strong></p>
+
+    <p class="texto-notificacion">
+      Hola {{ ultimaNotificacion.nombreCliente }},<br />
+      Tu solicitud de asesoría con
+      {{ programador.nombre }}
+      para el día {{ ultimaNotificacion.fecha }} a las
+      {{ ultimaNotificacion.hora }}
+      ha sido <strong>{{ ultimaNotificacion.estado }}</strong>.
+      <br />
+      Gracias por confiar en nuestros servicios.
+    </p>
+  </section>
 </div>
 
 <ng-template #sinProgramador>

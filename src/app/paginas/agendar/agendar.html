@@ -42,6 +42,12 @@
         </small>
       </div>
 
+      <!-- Mensaje cuando NO hay horarios -->
+      <div class="alerta-horarios" *ngIf="form.programadorId && sinHorarios">
+        Este programador todavía no tiene horarios disponibles.
+        Por favor elige otro programador o vuelve más tarde.
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label>Tu nombre</label>
@@ -100,11 +106,10 @@
       </div>
 
       <div class="form-footer">
-        <button type="submit" [disabled]="f.invalid">
+        <button type="submit" [disabled]="f.invalid || sinHorarios">
           Enviar solicitud
         </button>
       </div>
-
     </form>
 
     <div *ngIf="mensajeExito" class="mensaje-container">
