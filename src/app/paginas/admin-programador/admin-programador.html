@@ -97,9 +97,151 @@
       {{ ultimaNotificacion.hora }}
       ha sido <strong>{{ ultimaNotificacion.estado }}</strong>.
       <br />
-      Gracias por confiar en nuestros servicios.
     </p>
   </section>
+
+  <div class="card table-card">
+    <div class="card-header">
+      <h2>Mis proyectos</h2>
+    </div>
+
+    <div class="card-body">
+      <div class="tabla-proyectos" *ngIf="programador?.proyectos?.length; else sinProyectos">
+        <table class="tabla-asesorias">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Sección</th>
+              <th>Rol</th>
+              <th>Tecnologías</th>
+              <th>Enlaces</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of programador?.proyectos">
+              <td>{{ p.nombre }}</td>
+              <td>{{ p.seccion | titlecase }}</td>
+              <td>{{ p.participacion }}</td>
+              <td>{{ p.tecnologias.join(', ') }}</td>
+              <td>
+                <div class="links-proyecto">
+                  <a *ngIf="p.repoUrl" [href]="p.repoUrl" target="_blank">Repo</a>
+                  <a *ngIf="p.demoUrl" [href]="p.demoUrl" target="_blank">Demo</a>
+                </div>
+              </td>
+              <td class="text-center">
+                <button (click)="editarProyecto(p)">Editar</button>
+                <button (click)="eliminarProyecto(p)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #sinProyectos>
+        <p class="text-muted">
+          Aún no has registrado proyectos en tu portafolio.
+        </p>
+      </ng-template>
+
+      <hr class="separador" />
+
+      <h3>{{ editandoProyectoId == null ? 'Agregar nuevo proyecto' : 'Editar proyecto' }}</h3>
+
+      <form (ngSubmit)="guardarProyecto()" #fProj="ngForm" class="form-estilizado">
+        <div class="form-group">
+          <label>Nombre del proyecto</label>
+          <input
+            type="text"
+            name="nombreProyecto"
+            [(ngModel)]="nuevoProyecto.nombre"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea
+            name="descripcionProyecto"
+            rows="3"
+            [(ngModel)]="nuevoProyecto.descripcion"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sección</label>
+            <select
+              name="seccion"
+              [(ngModel)]="nuevoProyecto.seccion"
+              required
+            >
+              <option *ngFor="let s of tiposSeccion" [ngValue]="s">
+                {{ s | titlecase }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Rol / Participación</label>
+            <select
+              name="participacion"
+              [(ngModel)]="nuevoProyecto.participacion"
+              required
+            >
+              <option *ngFor="let p of tiposParticipacion" [ngValue]="p">
+                {{ p }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tecnologías (separadas por coma)</label>
+          <input
+            type="text"
+            name="tecnologias"
+            [(ngModel)]="tecnologiasTexto"
+            placeholder="Ej. Angular, Firebase, Tailwind"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>URL del repositorio (opcional)</label>
+            <input
+              type="url"
+              name="repoUrl"
+              [(ngModel)]="nuevoProyecto.repoUrl"
+              placeholder="https://github.com/..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label>URL de demo (opcional)</label>
+            <input
+              type="url"
+              name="demoUrl"
+              [(ngModel)]="nuevoProyecto.demoUrl"
+              placeholder="https://..."
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="fProj.invalid" class="btn-guardar">
+            {{ editandoProyectoId == null ? 'Guardar proyecto' : 'Actualizar proyecto' }}
+          </button>
+
+          <button type="button" *ngIf="editandoProyectoId != null" (click)="cancelarEdicion()" class="btn-cancelar">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <ng-template #sinProgramador>

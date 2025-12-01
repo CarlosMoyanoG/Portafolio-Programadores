@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Programador } from '../modelos/programador';
 
 import {Firestore, collection, addDoc, getDocs, query, where, updateDoc, deleteField,} from '@angular/fire/firestore';
+import { Proyecto } from '../modelos/proyecto';
 
 @Injectable({
   providedIn: 'root',
@@ -56,5 +57,23 @@ export class Programadores {
     }
 
     await updateDoc(docRef, cambios);
+  }
+
+  // Actualizar lista de proyectos
+
+  async actualizarProyectosProgramador(
+    idProgramador: number,
+    proyectos: Proyecto[]
+  ): Promise<void> {
+    const q = query(this.colRef, where('id', '==', idProgramador));
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      console.warn('No se encontró programador con id', idProgramador);
+      return;
+    }
+
+    const docRef = snap.docs[0].ref;
+    await updateDoc(docRef, { proyectos });
   }
 }

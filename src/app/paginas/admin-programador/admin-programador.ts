@@ -6,6 +6,7 @@ import { Asesoria, EstadoAsesoria } from '../../modelos/asesoria';
 import { Programadores } from '../../servicios/programadores';
 import { Asesorias } from '../../servicios/asesorias';
 import { Autenticacion } from '../../servicios/autenticacion';
+import { Proyecto, TipoParticipacion, TipoSeccionProyecto } from '../../modelos/proyecto';
 
 @Component({
   selector: 'app-admin-programador',
@@ -22,6 +23,22 @@ export class AdminProgramador implements OnInit {
   programador: Programador | undefined;
   estadosPosibles: EstadoAsesoria[] = ['pendiente', 'aprobada', 'rechazada'];
   ultimaNotificacion?: Asesoria;
+  tecnologiasTexto = ''; 
+  editandoProyectoId: number | null = null;
+  tiposSeccion: TipoSeccionProyecto[] = ['academico', 'laboral'];
+  tiposParticipacion: TipoParticipacion[] = ['Frontend', 'Backend', 'Base de Datos', 'Fullstack'];
+
+   // CRUD proyectos
+  nuevoProyecto: Proyecto = {
+    id: 0,
+    nombre: '',
+    descripcion: '',
+    seccion: 'academico',
+    participacion: 'Frontend',
+    tecnologias: [],
+    repoUrl: '',
+    demoUrl: '',
+  };
 
   constructor(private programadorService: Programadores, private asesoriasService: Asesorias, private auth: Autenticacion) {}
 
@@ -61,5 +78,100 @@ export class AdminProgramador implements OnInit {
     setTimeout(() => {
       this.mensajeExito = '';
     }, 3000);
+  }
+
+  // ---------- CRUD DE PROYECTOS ------------
+
+  prepararNuevoProyecto(): void {
+    this.editandoProyectoId = null;
+    this.nuevoProyecto = {
+      id: 0,
+      nombre: '',
+      descripcion: '',
+      seccion: 'academico',
+      participacion: 'Frontend',
+      tecnologias: [],
+      repoUrl: '',
+      demoUrl: '',
+    };
+    this.tecnologiasTexto = '';
+  }
+
+  editarProyecto(p: Proyecto): void {
+    this.editandoProyectoId = p.id;
+    this.nuevoProyecto = { ...p };
+    this.tecnologiasTexto = p.tecnologias.join(', ');
+  }
+
+  cancelarEdicion(): void {
+    this.prepararNuevoProyecto();
+  }
+
+  async guardarProyecto(): Promise<void> {
+    if (!this.programador) return;
+
+    if (!this.nuevoProyecto.nombre || !this.nuevoProyecto.descripcion) {
+      alert('Nombre y descripción son obligatorios');
+      return;
+    }
+
+    const tecnologiasLimpias = this.tecnologiasTexto
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t.length > 0);
+
+    this.nuevoProyecto.tecnologias = tecnologiasLimpias;
+    const proyectosActuales = [...(this.programador.proyectos || [])];
+
+    if (this.editandoProyectoId == null) {
+      const nuevoId =
+        proyectosActuales.length > 0
+          ? Math.max(...proyectosActuales.map(p => p.id)) + 1
+          : Date.now();
+
+      const proyectoAGuardar: Proyecto = {
+        ...this.nuevoProyecto,
+        id: nuevoId,
+      };
+
+      proyectosActuales.push(proyectoAGuardar);
+    } else {
+      const idx = proyectosActuales.findIndex(p => p.id === this.editandoProyectoId);
+      if (idx !== -1) {
+        proyectosActuales[idx] = { ...this.nuevoProyecto, id: this.editandoProyectoId };
+      }
+    }
+
+    await this.programadorService.actualizarProyectosProgramador(
+      this.programador.id,
+      proyectosActuales
+    );
+
+    this.programador.proyectos = proyectosActuales;
+    this.mensajeExito = this.editandoProyectoId == null
+      ? 'Proyecto creado correctamente.'
+      : 'Proyecto actualizado correctamente.';
+
+    this.prepararNuevoProyecto();
+
+    setTimeout(() => (this.mensajeExito = ''), 3000);
+  }
+
+  async eliminarProyecto(p: Proyecto): Promise<void> {
+    if (!this.programador) return;
+
+    const confirmar = confirm(`¿Seguro que deseas eliminar el proyecto "${p.nombre}"?`);
+    if (!confirmar) return;
+
+    const proyectosActuales = (this.programador.proyectos || []).filter(
+      proj => proj.id !== p.id
+    );
+
+    await this.programadorService.actualizarProyectosProgramador(
+      this.programador.id,
+      proyectosActuales
+    );
+
+    this.programador.proyectos = proyectosActuales;
   }
 }

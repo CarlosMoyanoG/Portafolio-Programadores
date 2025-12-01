@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Programador } from '../../modelos/programador';
-import { Programadores } from '../../servicios/programadores';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+
+import { Programador } from '../../modelos/programador';
+import { Programadores } from '../../servicios/programadores';
 import { Proyecto } from '../../modelos/proyecto';
 
 @Component({
@@ -13,7 +14,7 @@ import { Proyecto } from '../../modelos/proyecto';
   templateUrl: './portafolio.html',
   styleUrl: './portafolio.scss',
 })
-export class Portafolio {
+export class Portafolio implements OnInit {
 
   programador?: Programador;
   proyectosAcademicos: Proyecto[] = [];
@@ -29,5 +30,14 @@ export class Portafolio {
     const id = idParam ? +idParam : 0;
 
     this.programador = await this.programadoresService.getProgramadorById(id);
+
+    if (this.programador && this.programador.proyectos) {
+      this.proyectosAcademicos = this.programador.proyectos.filter(
+        p => p.seccion === 'academico'
+      );
+      this.proyectosLaborales = this.programador.proyectos.filter(
+        p => p.seccion === 'laboral'
+      );
+    }
   }
 }
