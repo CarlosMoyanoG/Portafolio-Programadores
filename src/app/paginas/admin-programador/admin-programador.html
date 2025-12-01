@@ -1,13 +1,25 @@
 <div class="programmer-dashboard" *ngIf="programador; else sinProgramador">
-  
   <div class="dashboard-header">
     <h1>Panel de programador</h1>
   </div>
 
+  <!-- PERFIL RESUMEN -->
   <div class="card profile-card">
     <div class="card-body profile-content">
-      <div class="profile-icon">
-        <i class="fas fa-user-circle"></i> </div>
+      <div class="avatar grande">
+        <ng-container *ngIf="programador?.fotoUrl; else iconoPanel">
+          <img
+            [src]="programador.fotoUrl"
+            [alt]="'Foto de ' + programador.nombre" />
+        </ng-container>
+
+        <ng-template #iconoPanel>
+          <div class="avatar-icon">
+            <i class="fas fa-user"></i>
+          </div>
+        </ng-template>
+      </div>
+
       <div class="profile-info">
         <h2>{{ programador.nombre }}</h2>
         <p class="especialidad">{{ programador.especialidad }}</p>
@@ -16,6 +28,115 @@
     </div>
   </div>
 
+  <!-- MI PERFIL (EDICIÓN) -->
+  <div class="card profile-edit-card">
+    <div class="card-header">
+      <h2>Mi perfil</h2>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="guardarPerfil()" #fPerfil="ngForm" class="form-estilizado">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              [(ngModel)]="perfilForm.nombre"
+              [readonly]="!perfilEditando"
+              required />
+          </div>
+
+          <div class="form-group">
+            <label>Especialidad</label>
+            <input
+              type="text"
+              name="especialidad"
+              [(ngModel)]="perfilForm.especialidad"
+              [readonly]="!perfilEditando"
+              required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea
+            name="descripcion"
+            rows="3"
+            [(ngModel)]="perfilForm.descripcion"
+            [readonly]="!perfilEditando">
+          </textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Correo de contacto</label>
+            <input
+              type="email"
+              name="emailContacto"
+              [(ngModel)]="perfilForm.emailContacto"
+              [readonly]="!perfilEditando"
+              placeholder="ejemplo@correo.com" />
+          </div>
+
+          <div class="form-group">
+            <label>Sitio web / Portafolio personal</label>
+            <input
+              type="url"
+              name="sitioWeb"
+              [(ngModel)]="perfilForm.sitioWeb"
+              [readonly]="!perfilEditando"
+              placeholder="https://mi-sitio.dev" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>GitHub</label>
+            <input
+              type="url"
+              name="githubUrl"
+              [(ngModel)]="perfilForm.githubUrl"
+              [readonly]="!perfilEditando"
+              placeholder="https://github.com/usuario" />
+          </div>
+
+          <div class="form-group">
+            <label>LinkedIn</label>
+            <input
+              type="url"
+              name="linkedinUrl"
+              [(ngModel)]="perfilForm.linkedinUrl"
+              [readonly]="!perfilEditando"
+              placeholder="https://www.linkedin.com/in/usuario" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn-guardar"
+            *ngIf="!perfilEditando"
+            (click)="editarPerfil()">
+            Editar perfil
+          </button>
+
+          <ng-container *ngIf="perfilEditando">
+            <button type="submit" class="btn-guardar" [disabled]="fPerfil.invalid">
+              Guardar cambios
+            </button>
+            <button
+              type="button"
+              class="btn-cancelar"
+              (click)="cancelarEdicionPerfil()">
+              Cancelar
+            </button>
+          </ng-container>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ASESORÍAS -->
   <div class="card table-card">
     <div class="card-header">
       <h2>Mis asesorías agendadas</h2>
@@ -32,6 +153,7 @@
             <th>Hora</th>
             <th>Estado</th>
             <th>Descripción</th>
+            <th>Mensaje al cliente</th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -51,7 +173,18 @@
                 </select>
               </div>
             </td>
-            <td><div class="desc-truncada" title="{{a.descripcionProyecto}}">{{ a.descripcionProyecto }}</div></td>
+            <td>
+              <div class="desc-truncada" title="{{a.descripcionProyecto}}">
+                {{ a.descripcionProyecto }}
+              </div>
+            </td>
+            <td>
+              <textarea
+                rows="2"
+                [(ngModel)]="a.mensajeRespuesta"
+                placeholder="Escribe un mensaje corto para el cliente...">
+              </textarea>
+            </td>
             <td class="text-center">
               <button (click)="actualizarEstado(a)" class="btn-guardar">
                 Guardar
@@ -69,6 +202,7 @@
     </div>
   </div>
 
+  <!-- TOAST -->
   <div *ngIf="mensajeExito" class="toast-notification">
     <div class="toast-content">
       <i class="fas fa-check-circle"></i>
@@ -76,6 +210,7 @@
     </div>
   </div>
 
+  <!-- NOTIFICACIÓN SIMULADA -->
   <section class="notificacion-simulada" *ngIf="ultimaNotificacion">
     <h2>Notificación simulada al cliente</h2>
 
@@ -89,17 +224,27 @@
 
     <p><strong>Mensaje que se enviaría (correo/WhatsApp):</strong></p>
 
-    <p class="texto-notificacion">
-      Hola {{ ultimaNotificacion.nombreCliente }},<br />
-      Tu solicitud de asesoría con
-      {{ programador.nombre }}
-      para el día {{ ultimaNotificacion.fecha }} a las
-      {{ ultimaNotificacion.hora }}
-      ha sido <strong>{{ ultimaNotificacion.estado }}</strong>.
-      <br />
-    </p>
+    <ng-container *ngIf="ultimaNotificacion.mensajeRespuesta && ultimaNotificacion.mensajeRespuesta.trim(); else mensajePorDefecto">
+      <p class="texto-notificacion">
+        Hola {{ ultimaNotificacion.nombreCliente }},<br />
+        {{ ultimaNotificacion.mensajeRespuesta }}
+      </p>
+    </ng-container>
+
+    <ng-template #mensajePorDefecto>
+      <p class="texto-notificacion">
+        Hola {{ ultimaNotificacion.nombreCliente }},<br />
+        Tu solicitud de asesoría con
+        {{ programador.nombre }}
+        para el día {{ ultimaNotificacion.fecha }} a las
+        {{ ultimaNotificacion.hora }}
+        ha sido <strong>{{ ultimaNotificacion.estado }}</strong>.
+        <br />
+      </p>
+    </ng-template>
   </section>
 
+  <!-- PROYECTOS -->
   <div class="card table-card">
     <div class="card-header">
       <h2>Mis proyectos</h2>
@@ -156,8 +301,7 @@
             type="text"
             name="nombreProyecto"
             [(ngModel)]="nuevoProyecto.nombre"
-            required
-          />
+            required />
         </div>
 
         <div class="form-group">
@@ -166,8 +310,8 @@
             name="descripcionProyecto"
             rows="3"
             [(ngModel)]="nuevoProyecto.descripcion"
-            required
-          ></textarea>
+            required>
+          </textarea>
         </div>
 
         <div class="form-row">
@@ -176,8 +320,7 @@
             <select
               name="seccion"
               [(ngModel)]="nuevoProyecto.seccion"
-              required
-            >
+              required>
               <option *ngFor="let s of tiposSeccion" [ngValue]="s">
                 {{ s | titlecase }}
               </option>
@@ -189,8 +332,7 @@
             <select
               name="participacion"
               [(ngModel)]="nuevoProyecto.participacion"
-              required
-            >
+              required>
               <option *ngFor="let p of tiposParticipacion" [ngValue]="p">
                 {{ p }}
               </option>
@@ -204,8 +346,7 @@
             type="text"
             name="tecnologias"
             [(ngModel)]="tecnologiasTexto"
-            placeholder="Ej. Angular, Firebase, Tailwind"
-          />
+            placeholder="Ej. Angular, Firebase, Tailwind" />
         </div>
 
         <div class="form-row">
@@ -215,8 +356,7 @@
               type="url"
               name="repoUrl"
               [(ngModel)]="nuevoProyecto.repoUrl"
-              placeholder="https://github.com/..."
-            />
+              placeholder="https://github.com/..." />
           </div>
 
           <div class="form-group">
@@ -225,8 +365,7 @@
               type="url"
               name="demoUrl"
               [(ngModel)]="nuevoProyecto.demoUrl"
-              placeholder="https://..."
-            />
+              placeholder="https://..." />
           </div>
         </div>
 
@@ -235,7 +374,11 @@
             {{ editandoProyectoId == null ? 'Guardar proyecto' : 'Actualizar proyecto' }}
           </button>
 
-          <button type="button" *ngIf="editandoProyectoId != null" (click)="cancelarEdicion()" class="btn-cancelar">
+          <button
+            type="button"
+            *ngIf="editandoProyectoId != null"
+            (click)="cancelarEdicion()"
+            class="btn-cancelar">
             Cancelar
           </button>
         </div>

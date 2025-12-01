@@ -25,12 +25,19 @@ export class AdminDashboard implements OnInit {
   disponibilidades: Disponibilidad[] = [];
   usuarios: (Usuario & { uid: string })[] = [];
   rolesPosibles: RolUsuario[] = ['visitante', 'admin', 'programador'];
+  programadorEditandoId: number | null = null;
+
 
   nuevoProgramador = {
     nombre: '',
     especialidad: '',
-    descripcion: ''
+    descripcion: '',
+    emailContacto: '',
+    githubUrl: '',
+    linkedinUrl: '',
+    sitioWeb: ''
   };
+
 
   nuevaDisponibilidad = {
     programadorId: 0,
@@ -74,20 +81,51 @@ export class AdminDashboard implements OnInit {
       return;
     }
 
-    await this.programadoresService.crearProgramador({
-      nombre: this.nuevoProgramador.nombre,
-      especialidad: this.nuevoProgramador.especialidad,
-      descripcion: this.nuevoProgramador.descripcion,
-      proyectos: []
-    });
+    // CREAR
+    if (this.programadorEditandoId === null) {
+
+      await this.programadoresService.crearProgramador({
+        nombre: this.nuevoProgramador.nombre,
+        especialidad: this.nuevoProgramador.especialidad,
+        descripcion: this.nuevoProgramador.descripcion,
+        emailContacto: this.nuevoProgramador.emailContacto || undefined,
+        githubUrl: this.nuevoProgramador.githubUrl || undefined,
+        linkedinUrl: this.nuevoProgramador.linkedinUrl || undefined,
+        sitioWeb: this.nuevoProgramador.sitioWeb || undefined,
+        proyectos: [],
+      });
+
+    } else {
+      // EDITAR
+      const existente = this.programadores.find(p => p.id === this.programadorEditandoId);
+
+      await this.programadoresService.actualizarProgramador({
+        id: this.programadorEditandoId,
+        nombre: this.nuevoProgramador.nombre,
+        especialidad: this.nuevoProgramador.especialidad,
+        descripcion: this.nuevoProgramador.descripcion,
+        fotoUrl: existente?.fotoUrl,
+        emailContacto: existente?.emailContacto,
+        githubUrl: existente?.githubUrl,
+        linkedinUrl: existente?.linkedinUrl,
+        sitioWeb: existente?.sitioWeb,
+        duenioUid: existente?.duenioUid,
+        proyectos: existente?.proyectos ?? [],
+      });
+    }
 
     this.programadores = await this.programadoresService.getProgramadores();
 
     this.nuevoProgramador = {
       nombre: '',
       especialidad: '',
-      descripcion: ''
+      descripcion: '',
+      emailContacto: '',
+      githubUrl: '',
+      linkedinUrl: '',
+      sitioWeb: ''
     };
+    this.programadorEditandoId = null;
   }
 
   async crearDisponibilidad() {
@@ -127,15 +165,62 @@ export class AdminDashboard implements OnInit {
     await this.usuariosService.actualizarUsuarioRolYProgramador(
       u.uid,
       u.rol,
-      u.rol === 'programador' ? u.programadorId ?? null : null
+      u.rol === 'programador' ? (u.programadorId ?? null) : null
     );
 
     if (u.rol === 'programador' && u.programadorId != null) {
-      await this.programadoresService.actualizarDuenioUid(u.programadorId, u.uid);
-    } else if (u.programadorId != null) {
-      await this.programadoresService.actualizarDuenioUid(u.programadorId, null);
+      await this.programadoresService.actualizarDuenioYContacto(
+        u.programadorId,
+        u.uid,
+        u.email,
+        u.fotoUrl
+      );
+    } 
+
+    else if (u.programadorId != null) {
+      await this.programadoresService.actualizarDuenioYContacto(
+        u.programadorId,
+        null,
+        null,
+      );
     }
 
     alert('Usuario actualizado correctamente');
   }
+
+
+    editarProgramador(p: Programador) {
+    this.programadorEditandoId = p.id;
+    this.nuevoProgramador = {
+      nombre: p.nombre,
+      especialidad: p.especialidad,
+      descripcion: p.descripcion,
+      emailContacto: p.emailContacto || '',
+      githubUrl: p.githubUrl || '',
+      linkedinUrl: p.linkedinUrl || '',
+      sitioWeb: p.sitioWeb || ''
+    };
+  }
+
+  cancelarEdicionProgramador() {
+    this.programadorEditandoId = null;
+    this.nuevoProgramador = {
+      nombre: '',
+      especialidad: '',
+      descripcion: '',
+      emailContacto: '',
+      githubUrl: '',
+      linkedinUrl: '',
+      sitioWeb: ''
+    };
+  }
+
+  async eliminarProgramador(p: Programador) {
+    const confirmar = confirm(`¿Seguro que deseas eliminar al programador "${p.nombre}"?`);
+    if (!confirmar) return;
+
+    await this.programadoresService.eliminarProgramador(p.id);
+    this.programadores = await this.programadoresService.getProgramadores();
+  }
+
 }

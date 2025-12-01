@@ -1,23 +1,32 @@
 import { Injectable } from '@angular/core';
 import { Asesoria } from '../modelos/asesoria';
 
-import {Firestore, collection, addDoc, getDocs, query, where, updateDoc} from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc
+} from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
-
 export class Asesorias {
- 
+
   private coleccionRef;
 
   constructor(private firestore: Firestore) {
     this.coleccionRef = collection(this.firestore, 'asesorias');
   }
 
-  async crearAsesoria(nueva: Omit<Asesoria, 'id' | 'estado'>): Promise<Asesoria> {
+  async crearAsesoria(
+    nueva: Omit<Asesoria, 'id' | 'estado'>
+  ): Promise<Asesoria> {
     const asesoria: Asesoria = {
-      id: Date.now(),      
+      id: Date.now(),
       estado: 'pendiente',
       ...nueva,
     };
@@ -25,7 +34,7 @@ export class Asesorias {
     await addDoc(this.coleccionRef, asesoria);
     console.log('Asesoría creada:', asesoria);
     return asesoria;
-  } 
+  }
 
   async getAsesorias(): Promise<Asesoria[]> {
     const snap = await getDocs(this.coleccionRef);
@@ -46,5 +55,4 @@ export class Asesorias {
 
     console.log('Asesoría actualizada en Firestore:', id, cambios);
   }
-
 }

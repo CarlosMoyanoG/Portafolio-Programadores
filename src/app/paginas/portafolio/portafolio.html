@@ -1,4 +1,19 @@
 <div *ngIf="programador as prog; else noEncontrado">
+
+  <div class="avatar grande">
+     <ng-container *ngIf="prog.fotoUrl; else iconoPub">
+        <img
+          [src]="prog.fotoUrl"
+          [alt]="'Foto de ' + prog.nombre" />
+      </ng-container>
+
+      <ng-template #iconoPub>
+        <div class="avatar-icon">
+          <i class="fas fa-user"></i>
+        </div>
+      </ng-template>
+  </div>
+
   <h1>{{ prog.nombre }}</h1>
   <p class="especialidad">{{ prog.especialidad }}</p>
   <p class="descripcion">{{ prog.descripcion }}</p>

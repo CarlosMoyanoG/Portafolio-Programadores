@@ -8,5 +8,6 @@ export interface Asesoria {
   fecha: string;
   hora: string;
   descripcionProyecto: string;
-  estado: EstadoAsesoria;   
+  estado: EstadoAsesoria;
+  mensajeRespuesta?: string;
 }

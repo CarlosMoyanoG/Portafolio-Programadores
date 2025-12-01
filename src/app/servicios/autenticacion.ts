@@ -1,24 +1,32 @@
 import { Injectable } from '@angular/core';
 import { Usuario } from '../modelos/usuario';
-import { Auth, GoogleAuthProvider, signInWithPopup, signOut, User as FirebaseUser } from '@angular/fire/auth';
-import { Usuarios} from './usuarios';
+import {
+  Auth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from '@angular/fire/auth';
+import { Usuarios } from './usuarios';
+import { Programadores } from './programadores';
 
 @Injectable({
   providedIn: 'root',
 })
-
 export class Autenticacion {
-
   private _usuarioActual: Usuario = {
     id: 0,
     nombre: 'Visitante',
     rol: 'visitante',
-    email: 'prueba@gmail.com'
-  }
+    email: 'prueba@gmail.com',
+  };
 
   private _uid: string | null = null;
 
-  constructor(private authFirebase: Auth, private usuariosService: Usuarios) {}
+  constructor(
+    private authFirebase: Auth,
+    private usuariosService: Usuarios,
+    private programadoresService: Programadores
+  ) {}
 
   get usuarioActual(): Usuario {
     return this._usuarioActual;
@@ -40,11 +48,12 @@ export class Autenticacion {
     return this._usuarioActual.rol === 'programador';
   }
 
-  // LOGIN REAL
-
+  // LOGIN como ADMIN (solo rol dentro de la app, no toca Firestore)
   async loginConGoogleComoAdmin(): Promise<void> {
     const provider = new GoogleAuthProvider();
     const cred = await signInWithPopup(this.authFirebase, provider);
+
+    this._uid = cred.user.uid;
 
     this._usuarioActual = {
       id: 1,
@@ -57,6 +66,7 @@ export class Autenticacion {
     console.log('Login Google como ADMIN', this._usuarioActual);
   }
 
+  // LOGIN normal (visitante / programador)
   async loginConGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
     const cred = await signInWithPopup(this.authFirebase, provider);
@@ -64,6 +74,7 @@ export class Autenticacion {
 
     this._uid = user.uid;
 
+    // Sincroniza usuario en colección `usuarios`
     const usuarioDb = await this.usuariosService.obtenerOCrearUsuarioDesdeFirebase({
       uid: user.uid,
       nombre: user.displayName,
@@ -74,6 +85,18 @@ export class Autenticacion {
     this._usuarioActual = usuarioDb;
 
     console.log('Login Google, datos app:', this._usuarioActual);
+
+    if (
+      usuarioDb.rol === 'programador' &&
+      usuarioDb.programadorId != null
+    ) {
+      await this.programadoresService.actualizarDuenioYContacto(
+        usuarioDb.programadorId,
+        user.uid,                                     
+        usuarioDb.email ?? user.email ?? null,
+        usuarioDb.fotoUrl ?? user.photoURL ?? undefined 
+      );
+    }
   }
 
   async cerrarSesion(): Promise<void> {

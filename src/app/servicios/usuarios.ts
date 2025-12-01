@@ -9,7 +9,7 @@ import {
   updateDoc,
   collection,
   getDocs,
-  deleteField,           // 👈 importante
+  deleteField,
 } from '@angular/fire/firestore';
 
 interface DatosFirebaseUsuario {
@@ -22,7 +22,6 @@ interface DatosFirebaseUsuario {
 @Injectable({
   providedIn: 'root',
 })
-
 export class Usuarios {
   constructor(private firestore: Firestore) {}
 
@@ -30,7 +29,13 @@ export class Usuarios {
     return doc(this.firestore, 'usuarios', uid);
   }
 
-  async obtenerOCrearUsuarioDesdeFirebase(datos: DatosFirebaseUsuario): Promise<Usuario> {
+  /**
+   * Crea el usuario en la colección `usuarios` si no existe
+   * y si ya existe, actualiza email/foto si cambiaron.
+   */
+  async obtenerOCrearUsuarioDesdeFirebase(
+    datos: DatosFirebaseUsuario
+  ): Promise<Usuario> {
     const ref = this.refUsuario(datos.uid);
     const snap = await getDoc(ref);
 
@@ -39,16 +44,33 @@ export class Usuarios {
         id: Date.now(),
         nombre: datos.nombre || 'Usuario',
         rol: 'visitante',
+        fotoUrl: datos.fotoUrl || undefined,
       };
 
       if (datos.email) nuevo.email = datos.email;
-      if (datos.fotoUrl) nuevo.fotoUrl = datos.fotoUrl;
 
       await setDoc(ref, nuevo as any);
       return nuevo;
     }
 
-    return snap.data() as Usuario;
+    // Si ya existe, sincronizamos email/foto si cambiaron
+    const existente = snap.data() as Usuario;
+    const cambios: any = {};
+
+    if (datos.email && datos.email !== existente.email) {
+      cambios.email = datos.email;
+    }
+
+    if (datos.fotoUrl && datos.fotoUrl !== existente.fotoUrl) {
+      cambios.fotoUrl = datos.fotoUrl;
+    }
+
+    if (Object.keys(cambios).length > 0) {
+      await updateDoc(ref, cambios);
+      return { ...existente, ...cambios };
+    }
+
+    return existente;
   }
 
   async obtenerUsuario(uid: string): Promise<Usuario | null> {
@@ -67,7 +89,11 @@ export class Usuarios {
     });
   }
 
-  async actualizarUsuarioRolYProgramador(uid: string, rol: RolUsuario, programadorId?: number | null): Promise<void> {
+  async actualizarUsuarioRolYProgramador(
+    uid: string,
+    rol: RolUsuario,
+    programadorId?: number | null
+  ): Promise<void> {
     const ref = this.refUsuario(uid);
     const cambios: any = { rol };
 
@@ -76,7 +102,7 @@ export class Usuarios {
     } else {
       cambios.programadorId = deleteField();
     }
+
     await updateDoc(ref, cambios);
   }
-
 }

@@ -15,7 +15,6 @@ import { Proyecto, TipoParticipacion, TipoSeccionProyecto } from '../../modelos/
   templateUrl: './admin-programador.html',
   styleUrl: './admin-programador.scss',
 })
-
 export class AdminProgramador implements OnInit {
 
   mensajeExito = '';
@@ -23,12 +22,25 @@ export class AdminProgramador implements OnInit {
   programador: Programador | undefined;
   estadosPosibles: EstadoAsesoria[] = ['pendiente', 'aprobada', 'rechazada'];
   ultimaNotificacion?: Asesoria;
-  tecnologiasTexto = ''; 
+
+  // ---- Perfil ----
+  perfilEditando = false;
+  perfilForm = {
+    nombre: '',
+    especialidad: '',
+    descripcion: '',
+    emailContacto: '',
+    githubUrl: '',
+    linkedinUrl: '',
+    sitioWeb: '',
+  };
+
+  // ---- Proyectos ----
+  tecnologiasTexto = '';
   editandoProyectoId: number | null = null;
   tiposSeccion: TipoSeccionProyecto[] = ['academico', 'laboral'];
   tiposParticipacion: TipoParticipacion[] = ['Frontend', 'Backend', 'Base de Datos', 'Fullstack'];
 
-   // CRUD proyectos
   nuevoProyecto: Proyecto = {
     id: 0,
     nombre: '',
@@ -40,36 +52,97 @@ export class AdminProgramador implements OnInit {
     demoUrl: '',
   };
 
-  constructor(private programadorService: Programadores, private asesoriasService: Asesorias, private auth: Autenticacion) {}
+  constructor(
+    private programadorService: Programadores,
+    private asesoriasService: Asesorias,
+    private auth: Autenticacion
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.cargarDatos();
   }
 
   private async cargarDatos(): Promise<void> {
-  const programadorId = this.auth.usuarioActual.programadorId ?? 1;
+    const programadorId = this.auth.usuarioActual.programadorId ?? 1;
 
-  this.programador = await this.programadorService.getProgramadorById(programadorId);
-  const todas_asesorias = await this.asesoriasService.getAsesorias();
+    this.programador = await this.programadorService.getProgramadorById(programadorId);
+    const todas_asesorias = await this.asesoriasService.getAsesorias();
 
-  if (this.programador) {
-    const listaFiltrada: Asesoria[] = [];
+    if (this.programador) {
+      const listaFiltrada: Asesoria[] = [];
 
-    for (let i = 0; i < todas_asesorias.length; i++) {
-      const asesoria = todas_asesorias[i];
+      for (let i = 0; i < todas_asesorias.length; i++) {
+        const asesoria = todas_asesorias[i];
 
-      if (asesoria.programadorId === this.programador.id) {
-        listaFiltrada.push(asesoria);
+        if (asesoria.programadorId === this.programador.id) {
+          listaFiltrada.push(asesoria);
+        }
       }
+
+      this.asesorias = listaFiltrada;
+      this.cargarPerfilForm();
+    }
+  }
+
+  // ================= PERFIL =================
+
+  private cargarPerfilForm(): void {
+    if (!this.programador) return;
+
+    this.perfilForm = {
+      nombre: this.programador.nombre,
+      especialidad: this.programador.especialidad,
+      descripcion: this.programador.descripcion,
+      emailContacto: this.programador.emailContacto || '',
+      githubUrl: this.programador.githubUrl || '',
+      linkedinUrl: this.programador.linkedinUrl || '',
+      sitioWeb: this.programador.sitioWeb || '',
+    };
+  }
+
+  editarPerfil(): void {
+    this.perfilEditando = true;
+    this.cargarPerfilForm();
+  }
+
+  cancelarEdicionPerfil(): void {
+    this.perfilEditando = false;
+    this.cargarPerfilForm();
+  }
+
+  async guardarPerfil(): Promise<void> {
+    if (!this.programador) return;
+
+    if (!this.perfilForm.nombre.trim() || !this.perfilForm.especialidad.trim()) {
+      alert('Nombre y especialidad son obligatorios');
+      return;
     }
 
-    this.asesorias = listaFiltrada;
+    const actualizado: Programador = {
+      ...this.programador,
+      nombre: this.perfilForm.nombre.trim(),
+      especialidad: this.perfilForm.especialidad.trim(),
+      descripcion: this.perfilForm.descripcion.trim(),
+      emailContacto: this.perfilForm.emailContacto || undefined,
+      githubUrl: this.perfilForm.githubUrl || undefined,
+      linkedinUrl: this.perfilForm.linkedinUrl || undefined,
+      sitioWeb: this.perfilForm.sitioWeb || undefined,
+    };
+
+    await this.programadorService.actualizarProgramador(actualizado);
+    this.programador = actualizado;
+    this.perfilEditando = false;
+
+    this.mensajeExito = 'Perfil actualizado correctamente.';
+    setTimeout(() => (this.mensajeExito = ''), 3000);
   }
-}
+
+  // =============== ASESORÍAS ===============
 
   async actualizarEstado(a: Asesoria): Promise<void> {
     await this.asesoriasService.actualizarAsesoria(a.id, {
       estado: a.estado,
+      mensajeRespuesta: a.mensajeRespuesta ?? '',
     });
 
     this.mensajeExito = `Asesoría #${a.id} actualizada correctamente`;
@@ -80,7 +153,7 @@ export class AdminProgramador implements OnInit {
     }, 3000);
   }
 
-  // ---------- CRUD DE PROYECTOS ------------
+  // =============== PROYECTOS ===============
 
   prepararNuevoProyecto(): void {
     this.editandoProyectoId = null;

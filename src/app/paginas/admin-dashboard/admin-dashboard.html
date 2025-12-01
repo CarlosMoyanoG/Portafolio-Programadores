@@ -1,6 +1,7 @@
 <div class="dashboard-container">
   <h1>Panel de administrador</h1>
 
+  <!-- ASESORÍAS -->
   <div class="card panel-asesorias">
     <div class="card-header">
       <h2>Asesorías agendadas</h2>
@@ -18,6 +19,7 @@
             <th>Hora</th>
             <th>Estado</th>
             <th>Descripción</th>
+            <th>Mensaje programador</th>
           </tr>
         </thead>
         <tbody>
@@ -34,6 +36,7 @@
               </span>
             </td>
             <td>{{ a.descripcionProyecto }}</td>
+            <td>{{ a.mensajeRespuesta || '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -47,6 +50,7 @@
   </div>
 
   <div class="grid-gestion">
+    <!-- GESTIÓN DE PROGRAMADORES -->
     <div class="card panel-programadores">
       <div class="card-header">
         <h2>Gestión de programadores</h2>
@@ -54,30 +58,90 @@
       
       <div class="card-body">
         <div class="form-section">
-          <h3>Registrar nuevo programador</h3>
+          <h3>
+            {{ programadorEditandoId === null ? 'Registrar nuevo programador' : 'Editar programador' }}
+          </h3>
+
           <form (ngSubmit)="crearProgramador()" #fProg="ngForm" class="form-estilizado">
             <div class="form-group">
               <label>Nombre</label>
-              <input type="text" name="nombre" [(ngModel)]="nuevoProgramador.nombre" required>
+              <input
+                type="text"
+                name="nombre"
+                [(ngModel)]="nuevoProgramador.nombre"
+                required
+              />
             </div>
 
             <div class="form-group">
               <label>Especialidad</label>
-              <input type="text" name="especialidad" [(ngModel)]="nuevoProgramador.especialidad" required/>
+              <input
+                type="text"
+                name="especialidad"
+                [(ngModel)]="nuevoProgramador.especialidad"
+                required
+              />
             </div>
 
             <div class="form-group">
               <label>Descripción</label>
-              <textarea name="descripcion" rows="3" [(ngModel)]="nuevoProgramador.descripcion" placeholder="Breve descripción..."></textarea>
+              <textarea
+                name="descripcion"
+                rows="3"
+                [(ngModel)]="nuevoProgramador.descripcion"
+                placeholder="Breve descripción..."
+              ></textarea>
             </div>
 
+            <div class="form-group">
+              <label>Correo de contacto</label>
+              <input type="email"
+                    name="emailContacto"
+                    [(ngModel)]="nuevoProgramador.emailContacto"
+                    placeholder="ejemplo@correo.com" />
+            </div>
+
+            <div class="form-group">
+              <label>GitHub (opcional)</label>
+              <input type="url"
+                    name="githubUrl"
+                    [(ngModel)]="nuevoProgramador.githubUrl"
+                    placeholder="https://github.com/usuario" />
+            </div>
+
+            <div class="form-group">
+              <label>LinkedIn (opcional)</label>
+              <input type="url"
+                    name="linkedinUrl"
+                    [(ngModel)]="nuevoProgramador.linkedinUrl"
+                    placeholder="https://www.linkedin.com/in/usuario" />
+            </div>
+
+            <div class="form-group">
+              <label>Sitio web / Portafolio personal (opcional)</label>
+              <input type="url"
+                    name="sitioWeb"
+                    [(ngModel)]="nuevoProgramador.sitioWeb"
+                    placeholder="https://mi-sitio.dev" />
+            </div>
+
+
             <button type="submit" [disabled]="fProg.invalid" class="btn-primary">
-              Guardar programador
+              {{ programadorEditandoId === null ? 'Guardar programador' : 'Actualizar programador' }}
+            </button>
+
+            <button
+              type="button"
+              class="btn-secundario"
+              *ngIf="programadorEditandoId !== null"
+              (click)="cancelarEdicionProgramador()"
+            >
+              Cancelar
             </button>
           </form>
         </div>
 
-        <hr class="separador">
+        <hr class="separador" />
 
         <div class="lista-section">
           <h3>Programadores registrados</h3>
@@ -88,12 +152,22 @@
                 <span class="badge-light">{{ p.especialidad }}</span>
               </div>
               <p class="texto-pequeño">{{ p.descripcion }}</p>
+
+              <div class="acciones-programador">
+                <button type="button" (click)="editarProgramador(p)">
+                  Editar
+                </button>
+                <button type="button" (click)="eliminarProgramador(p)">
+                  Eliminar
+                </button>
+              </div>
             </li>
           </ul>
         </div>
       </div>
     </div>
 
+    <!-- HORARIOS -->
     <div class="card panel-horarios">
       <div class="card-header">
         <h2>Horarios de disponibilidad</h2>
@@ -109,7 +183,11 @@
           <form (ngSubmit)="crearDisponibilidad()" #fDisp="ngForm" class="form-estilizado">
             <div class="form-group">
               <label>Programador</label>
-              <select name="programadorId" [(ngModel)]="nuevaDisponibilidad.programadorId" required>
+              <select
+                name="programadorId"
+                [(ngModel)]="nuevaDisponibilidad.programadorId"
+                required
+              >
                 <option [ngValue]="0">Selecciona un programador</option>
                 <option *ngFor="let p of programadores" [ngValue]="p.id">
                   {{ p.nombre }}
@@ -120,11 +198,21 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Fecha</label>
-                <input type="date" name="fecha" [(ngModel)]="nuevaDisponibilidad.fecha" required>
+                <input
+                  type="date"
+                  name="fecha"
+                  [(ngModel)]="nuevaDisponibilidad.fecha"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label>Hora</label>
-                <input type="time" name="hora" [(ngModel)]="nuevaDisponibilidad.hora" required>
+                <input
+                  type="time"
+                  name="hora"
+                  [(ngModel)]="nuevaDisponibilidad.hora"
+                  required
+                />
               </div>
             </div>
 
@@ -134,7 +222,7 @@
           </form>
         </div>
 
-        <hr class="separador">
+        <hr class="separador" />
 
         <div class="lista-section">
           <h3>Horarios registrados</h3>
@@ -167,10 +255,11 @@
     </div>
   </div>
 
+  <!-- GESTIÓN DE USUARIOS -->
   <section class="seccion-usuarios">
     <h2>Gestión de usuarios</h2>
     <p>
-      Aquí el administrador puede asignar roles y vincular usuarios con un portafolio de programador.
+      Administrador puede asignar roles y vincular usuarios con un portafolio de programador.
     </p>
 
     <table class="tabla-usuarios">

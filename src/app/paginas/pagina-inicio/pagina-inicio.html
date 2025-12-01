@@ -10,15 +10,17 @@
     <article class="tarjeta" *ngFor="let prog of programadores">
       
       <div class="tarjeta-header">
-        <img
-          *ngIf="prog.fotoUrl"
-          [src]="prog.fotoUrl"
-          [alt]="prog.nombre"
-          class="avatar-programador"
-        />
-        <div class="tarjeta-titulo">
-          <h2>{{ prog.nombre }}</h2>
-          <p class="especialidad">{{ prog.especialidad }}</p>
+        <div class="avatar chico">
+          <ng-container *ngIf="prog.fotoUrl; else iconoProgramador">
+            <img
+              [src]="prog.fotoUrl"
+              [alt]="'Foto de ' + prog.nombre" />
+          </ng-container>
+          <ng-template #iconoProgramador>
+            <div class="avatar-icon">
+              <i class="fas fa-user"></i>
+            </div>
+          </ng-template>
         </div>
       </div>
 
