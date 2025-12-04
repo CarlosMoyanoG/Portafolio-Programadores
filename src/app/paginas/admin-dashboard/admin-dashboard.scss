@@ -387,3 +387,26 @@ input:focus, select:focus, textarea:focus {
     color: #b91c1c;
   }
 }
+
+.cubos-dias {
+    display: flex; 
+    flex-direction: column;
+    gap: 10px; 
+}
+
+.cubos-dia {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    cursor: pointer;
+    width: 100%; 
+}
+
+.cubos-dia span {
+    order: 1;
+}
+
+.cubos-dia input[type="checkbox"] {
+    order: 2; 
+    margin: 0;
+}

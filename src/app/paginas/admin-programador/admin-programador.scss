@@ -407,3 +407,26 @@ input[readonly], textarea[readonly] {
   from { opacity: 0; transform: translateX(100%); }
   to { opacity: 1; transform: translateX(0); }
 }
+
+.cubos-dias {
+    display: flex; 
+    flex-direction: column;
+    gap: 10px; 
+}
+
+.cubos-dia {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    cursor: pointer;
+    width: 100%; 
+}
+
+.cubos-dia span {
+    order: 1;
+}
+
+.cubos-dia input[type="checkbox"] {
+    order: 2; 
+    margin: 0;
+}

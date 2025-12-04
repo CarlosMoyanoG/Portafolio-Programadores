@@ -3,12 +3,13 @@
     <div class="cabecera-tarjeta">
       <h1>Agendar Asesoría</h1>
       <p class="subtitulo">
-        Completa el siguiente formulario para solicitar una asesoría con uno de nuestros programadores.
+        Completa el siguiente formulario para solicitar una asesoría con uno de
+        nuestros programadores.
       </p>
     </div>
 
     <form (ngSubmit)="onSubmit()" #f="ngForm" class="formulario-asesoria">
-
+      <!-- Programador -->
       <div class="grupo-formulario">
         <label>Programador</label>
         <div class="contenedor-select">
@@ -16,7 +17,8 @@
             name="programadorId"
             [(ngModel)]="form.programadorId"
             (ngModelChange)="cambiosProgramador($event)"
-            required>
+            required
+          >
             <option [ngValue]="0" disabled>Selecciona un programador</option>
             <option *ngFor="let prog of programadores" [ngValue]="prog.id">
               {{ prog.nombre }} – {{ prog.especialidad }}
@@ -25,31 +27,7 @@
         </div>
       </div>
 
-      <div class="grupo-formulario" *ngIf="disponibilidadesProgramador.length">
-        <label>Horarios disponibles</label>
-        <div class="contenedor-select">
-          <select
-            name="slotId"
-            [(ngModel)]="selectedSlotId"
-            (ngModelChange)="cambiosSlots($event)">
-            <option [ngValue]="0">Selecciona un horario</option>
-            <option *ngFor="let d of disponibilidadesProgramador" [ngValue]="d.id">
-              {{ d.fecha }} – {{ d.hora }}
-            </option>
-          </select>
-        </div>
-        <small class="texto-ayuda">
-          Al elegir un horario se rellenarán automáticamente la fecha y la hora de la asesoría.
-          Cada asesoría tiene una duración de <strong>1 hora</strong> desde la hora seleccionada.
-          Si necesitas más tiempo, agenda otra asesoría a partir de la hora en que termina la anterior.
-        </small>
-      </div>
-
-      <div class="alerta-horarios" *ngIf="form.programadorId && sinHorarios">
-        Este programador todavía no tiene horarios disponibles.
-        Por favor elige otro programador o vuelve más tarde.
-      </div>
-
+      <!-- Nombre y correo -->
       <div class="fila-formulario">
         <div class="grupo-formulario">
           <label>Tu nombre</label>
@@ -58,7 +36,8 @@
             name="nombreCliente"
             [(ngModel)]="form.nombreCliente"
             required
-            placeholder="Ej. María González" />
+            placeholder="Ej. María González"
+          />
         </div>
 
         <div class="grupo-formulario">
@@ -68,30 +47,63 @@
             name="emailCliente"
             [(ngModel)]="form.emailCliente"
             required
-            placeholder="ejemplo@correo.com" />
+            placeholder="ejemplo@correo.com"
+          />
         </div>
       </div>
 
-      <div class="fila-formulario">
-        <div class="grupo-formulario">
-          <label>Fecha</label>
-          <input
-            type="date"
-            name="fecha"
-            [(ngModel)]="form.fecha"
-            required
-            [disabled]="bloquearFechaHora" />
+      <!-- Fecha -->
+      <div class="grupo-formulario">
+        <label>Fecha de la asesoría</label>
+        <input
+          type="date"
+          name="fecha"
+          [(ngModel)]="form.fecha"
+          (ngModelChange)="cambioFecha()"
+          required
+        />
+      </div>
+
+      <!-- Horas disponibles -->
+      <div class="grupo-formulario" *ngIf="form.fecha">
+        <label>Horarios disponibles</label>
+
+        <div *ngIf="horasDisponibles.length; else sinHoras">
+          <div class="lista-horas">
+            <button
+              type="button"
+              *ngFor="let h of horasDisponibles"
+              (click)="seleccionarHora(h)"
+              [class.seleccionado]="h === form.hora"
+              class="boton-hora"
+            >
+              {{ h }}
+            </button>
+          </div>
+          <small class="texto-ayuda">
+            Cada asesoría tiene una duración de
+            <strong>1 hora</strong> desde la hora seleccionada. Si necesitas
+            más tiempo, agenda otra asesoría a partir de la hora en que termina
+            la anterior.
+          </small>
         </div>
 
-        <div class="grupo-formulario">
-          <label>Hora</label>
-          <input
-            type="time"
-            name="hora"
-            [(ngModel)]="form.hora"
-            required
-            [disabled]="bloquearFechaHora" />
-        </div>
+        <ng-template #sinHoras>
+          <div class="alerta-horarios" *ngIf="form.fecha">
+            No hay horarios disponibles para esta fecha.
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="grupo-formulario" *ngIf="form.hora">
+        <label>Hora seleccionada</label>
+        <input
+          type="time"
+          name="hora"
+          [(ngModel)]="form.hora"
+          readonly
+          required
+        />
       </div>
 
       <div class="grupo-formulario">
@@ -101,14 +113,16 @@
           rows="4"
           [(ngModel)]="form.descripcionProyecto"
           required
-          placeholder="Cuéntanos qué necesitas..."></textarea>
+          placeholder="Describe que necesitas"
+        ></textarea>
       </div>
 
       <div class="pie-formulario">
         <button
           type="submit"
           class="boton-enviar"
-          [disabled]="f.invalid || sinHorarios">
+          [disabled]="f.invalid || !form.hora"
+        >
           Enviar solicitud
         </button>
       </div>
@@ -119,6 +133,5 @@
         <i class="fas fa-check-circle"></i> {{ mensajeExito }}
       </p>
     </div>
-
   </div>
 </div>

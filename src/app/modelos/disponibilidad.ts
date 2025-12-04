@@ -1,6 +1,13 @@
+export type TipoDisponibilidad = 'recurrente' | 'bloqueo' | 'puntual';
+
 export interface Disponibilidad {
   id: number;
   programadorId: number;
-  fecha: string; 
-  hora: string;
+  tipo: TipoDisponibilidad;
+
+  diaSemana?: number;
+  fecha?: string; 
+  horaInicio?: string; 
+  horaFin?: string;    
+  hora?: string;
 }

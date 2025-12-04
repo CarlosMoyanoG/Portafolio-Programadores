@@ -1,3 +1,4 @@
+// src/app/servicios/asesorias.ts
 import { Injectable } from '@angular/core';
 import { Asesoria } from '../modelos/asesoria';
 
@@ -8,23 +9,20 @@ import {
   getDocs,
   query,
   where,
-  updateDoc
+  updateDoc,
 } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Asesorias {
-
   private coleccionRef;
 
   constructor(private firestore: Firestore) {
     this.coleccionRef = collection(this.firestore, 'asesorias');
   }
 
-  async crearAsesoria(
-    nueva: Omit<Asesoria, 'id' | 'estado'>
-  ): Promise<Asesoria> {
+  async crearAsesoria(nueva: Omit<Asesoria, 'id' | 'estado'>): Promise<Asesoria> {
     const asesoria: Asesoria = {
       id: Date.now(),
       estado: 'pendiente',
@@ -38,18 +36,34 @@ export class Asesorias {
 
   async getAsesorias(): Promise<Asesoria[]> {
     const snap = await getDocs(this.coleccionRef);
-    return snap.docs.map(d => d.data() as Asesoria);
+    return snap.docs.map((d) => d.data() as Asesoria);
   }
 
   async getAsesoriasPorEmailCliente(email: string): Promise<Asesoria[]> {
     const qRef = query(this.coleccionRef, where('emailCliente', '==', email));
     const snap = await getDocs(qRef);
-    return snap.docs.map(d => d.data() as Asesoria);
+    return snap.docs.map((d) => d.data() as Asesoria);
   }
 
-  async actualizarAsesoria(id: number, cambios: Partial<Asesoria>): Promise<void> {
-    const q = query(this.coleccionRef, where('id', '==', id));
-    const snap = await getDocs(q);
+  async getAsesoriasPorProgramadorYFecha(
+    programadorId: number,
+    fecha: string
+  ): Promise<Asesoria[]> {
+    const qRef = query(
+      this.coleccionRef,
+      where('programadorId', '==', programadorId),
+      where('fecha', '==', fecha)
+    );
+    const snap = await getDocs(qRef);
+    return snap.docs.map((d) => d.data() as Asesoria);
+  }
+
+  async actualizarAsesoria(
+    id: number,
+    cambios: Partial<Asesoria>
+  ): Promise<void> {
+    const qRef = query(this.coleccionRef, where('id', '==', id));
+    const snap = await getDocs(qRef);
 
     if (snap.empty) {
       console.warn('No se encontró asesoria con id', id);

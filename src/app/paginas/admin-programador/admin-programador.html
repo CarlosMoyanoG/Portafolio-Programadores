@@ -203,6 +203,159 @@
       </div>
     </div>
 
+        <div class="tarjeta">
+      <div class="cabecera-tarjeta">
+        <h2>Mis horarios de disponibilidad</h2>
+      </div>
+
+      <div class="cuerpo-tarjeta">
+        <div class="seccion-formulario">
+          <h3>Horario recurrente semanal</h3>
+          <form
+            (ngSubmit)="crearHorarioRecurrenteProgramador()"
+            #fRecProg="ngForm"
+            class="formulario-estilizado"
+          >
+            <div class="grupo-formulario">
+              <label>Días de la semana</label>
+              <div class="cubos-dias">
+                <label *ngFor="let d of diasSemana" class="cubos-dia">
+                  <input
+                    type="checkbox"
+                    [checked]="formHorarioRecurrente.diasSeleccionados.includes(d.valor)"
+                    (change)="toggleDiaRecurrenteProgramador(d.valor, $event.target.checked)"
+                  />
+                  <span>{{ d.etiqueta }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="fila-formulario">
+              <div class="grupo-formulario">
+                <label>Hora inicio</label>
+                <input
+                  type="time"
+                  name="horaInicioProg"
+                  [(ngModel)]="formHorarioRecurrente.horaInicio"
+                  required
+                />
+              </div>
+              <div class="grupo-formulario">
+                <label>Hora fin</label>
+                <input
+                  type="time"
+                  name="horaFinProg"
+                  [(ngModel)]="formHorarioRecurrente.horaFin"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="fRecProg.invalid" class="boton-primario">
+              Guardar horario recurrente
+            </button>
+          </form>
+        </div>
+
+        <hr class="separador" />
+
+        <div class="seccion-formulario">
+          <h3>Bloqueos / excepciones</h3>
+          <form
+            (ngSubmit)="crearBloqueoProgramador()"
+            #fBloqProg="ngForm"
+            class="formulario-estilizado"
+          >
+            <div class="grupo-formulario">
+              <label>Fecha</label>
+              <input
+                type="date"
+                name="fechaBloqProg"
+                [(ngModel)]="formBloqueo.fecha"
+                required
+              />
+            </div>
+
+            <div class="grupo-formulario">
+              <label>
+                <input
+                  type="checkbox"
+                  name="todoElDiaProg"
+                  [(ngModel)]="formBloqueo.todoElDia"
+                />
+                Todo el día
+              </label>
+            </div>
+
+            <div class="fila-formulario">
+              <div class="grupo-formulario">
+                <label>Hora inicio</label>
+                <input
+                  type="time"
+                  name="horaInicioBloqProg"
+                  [(ngModel)]="formBloqueo.horaInicio"
+                  [disabled]="formBloqueo.todoElDia"
+                />
+              </div>
+              <div class="grupo-formulario">
+                <label>Hora fin</label>
+                <input
+                  type="time"
+                  name="horaFinBloqProg"
+                  [(ngModel)]="formBloqueo.horaFin"
+                  [disabled]="formBloqueo.todoElDia"
+                />
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="!formBloqueo.fecha" class="boton-primario">
+              Guardar bloqueo
+            </button>
+          </form>
+        </div>
+
+        <hr class="separador" />
+
+        <div class="seccion-lista">
+          <h3>Registros</h3>
+          <div class="contenedor-tabla-pequena">
+            <table class="tabla-minimalista" *ngIf="horarios.length; else sinHorariosProg">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tipo</th>
+                  <th>Día / Fecha</th>
+                  <th>Horario</th>
+                  <th style="width: 80px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of horarios">
+                  <td>{{ d.id }}</td>
+                  <td>{{ d.tipo | titlecase }}</td>
+                  <td>{{ descripcionDia(d) }}</td>
+                  <td>{{ descripcionRango(d) }}</td>
+                  <td>
+                    <button type="button" class="boton-texto boton-texto-peligro" (click)="eliminarDisponibilidadProgramador(d)">
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #sinHorariosProg>
+            <p class="texto-tenue">
+              Aún no tienes horarios configurados.
+            </p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+
+
     <div class="tarjeta">
       <div class="cabecera-tarjeta">
         <h2>Mis proyectos</h2>

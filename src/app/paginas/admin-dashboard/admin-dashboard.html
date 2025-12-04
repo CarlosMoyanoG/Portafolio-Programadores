@@ -175,14 +175,19 @@
           {{ mensajeDisponibilidad }}
         </p>
 
+        <!-- Horarios recurrentes -->
         <div class="seccion-formulario">
-          <h3>Registrar horario</h3>
-          <form (ngSubmit)="crearDisponibilidad()" #fDisp="ngForm" class="formulario-estilizado">
+          <h3>Horario recurrente (semanal)</h3>
+          <form
+            (ngSubmit)="crearHorarioRecurrente()"
+            #fRec="ngForm"
+            class="formulario-estilizado"
+          >
             <div class="grupo-formulario">
               <label>Programador</label>
               <select
-                name="programadorId"
-                [(ngModel)]="nuevaDisponibilidad.programadorId"
+                name="programadorIdRec"
+                [(ngModel)]="formHorarioRecurrente.programadorId"
                 required
               >
                 <option [ngValue]="0">Selecciona un programador</option>
@@ -192,58 +197,164 @@
               </select>
             </div>
 
+            <div class="grupo-formulario">
+              <label>Días de la semana</label>
+              <div class="cubos-dias">
+                <label *ngFor="let d of diasSemana" class="cubos-dia">
+                  <input
+                    type="checkbox"
+                    [checked]="formHorarioRecurrente.diasSeleccionados.includes(d.valor)"
+                    (change)="toggleDiaRecurrente(d.valor, $event.target.checked)"
+                  />
+                  <span>{{ d.etiqueta }}</span>
+                </label>
+              </div>
+            </div>
+
             <div class="fila-formulario">
               <div class="grupo-formulario">
-                <label>Fecha</label>
+                <label>Hora inicio</label>
                 <input
-                  type="date"
-                  name="fecha"
-                  [(ngModel)]="nuevaDisponibilidad.fecha"
+                  type="time"
+                  name="horaInicioRec"
+                  [(ngModel)]="formHorarioRecurrente.horaInicio"
                   required
                 />
               </div>
               <div class="grupo-formulario">
-                <label>Hora</label>
+                <label>Hora fin</label>
                 <input
                   type="time"
-                  name="hora"
-                  [(ngModel)]="nuevaDisponibilidad.hora"
+                  name="horaFinRec"
+                  [(ngModel)]="formHorarioRecurrente.horaFin"
                   required
                 />
               </div>
             </div>
 
-            <button type="submit" [disabled]="fDisp.invalid" class="boton-primario">
-              Guardar horario
+            <button
+              type="submit"
+              [disabled]="fRec.invalid"
+              class="boton-primario"
+            >
+              Guardar horario recurrente
             </button>
           </form>
         </div>
 
         <hr class="separador" />
 
+        <!-- Bloqueos / excepciones -->
+        <div class="seccion-formulario">
+          <h3>Bloqueo / excepción</h3>
+          <form
+            (ngSubmit)="crearBloqueo()"
+            #fBloq="ngForm"
+            class="formulario-estilizado"
+          >
+            <div class="grupo-formulario">
+              <label>Programador</label>
+              <select
+                name="programadorIdBloq"
+                [(ngModel)]="formBloqueo.programadorId"
+                required
+              >
+                <option [ngValue]="0">Selecciona un programador</option>
+                <option *ngFor="let p of programadores" [ngValue]="p.id">
+                  {{ p.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="grupo-formulario">
+              <label>Fecha</label>
+              <input
+                type="date"
+                name="fechaBloq"
+                [(ngModel)]="formBloqueo.fecha"
+                required
+              />
+            </div>
+
+            <div class="grupo-formulario">
+              <label>
+                <input
+                  type="checkbox"
+                  name="todoElDia"
+                  [(ngModel)]="formBloqueo.todoElDia"
+                />
+                Todo el día
+              </label>
+            </div>
+
+            <div class="fila-formulario">
+              <div class="grupo-formulario">
+                <label>Hora inicio</label>
+                <input
+                  type="time"
+                  name="horaInicioBloq"
+                  [(ngModel)]="formBloqueo.horaInicio"
+                  [disabled]="formBloqueo.todoElDia"
+                />
+              </div>
+              <div class="grupo-formulario">
+                <label>Hora fin</label>
+                <input
+                  type="time"
+                  name="horaFinBloq"
+                  [(ngModel)]="formBloqueo.horaFin"
+                  [disabled]="formBloqueo.todoElDia"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              [disabled]="!formBloqueo.programadorId || !formBloqueo.fecha"
+              class="boton-primario"
+            >
+              Guardar bloqueo
+            </button>
+          </form>
+        </div>
+
+        <hr class="separador" />
+
+        <!-- Lista de registros -->
         <div class="seccion-lista">
-          <h3>Horarios registrados</h3>
+          <h3>Registros de disponibilidad</h3>
           <div class="contenedor-tabla-pequena">
-            <table class="tabla-simple" *ngIf="disponibilidades.length; else sinHorarios">
+            <table
+              class="tabla-simple"
+              *ngIf="disponibilidades.length; else sinHorarios"
+            >
               <thead>
                 <tr>
                   <th>#</th>
                   <th>Programador</th>
-                  <th>Fecha</th>
-                  <th>Hora</th>
+                  <th>Tipo</th>
+                  <th>Día / Fecha</th>
+                  <th>Horario</th>
+                  <th style="width: 80px;">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let d of disponibilidades">
                   <td>{{ d.id }}</td>
                   <td>{{ obtenerNombreProgramador(d.programadorId) }}</td>
-                  <td>{{ d.fecha }}</td>
-                  <td>{{ d.hora }}</td>
+                  <td>{{ d.tipo | titlecase }}</td>
+                  <td>{{ descripcionDia(d) }}</td>
+                  <td>{{ descripcionRango(d) }}</td>
+                  <td>
+                    <button type="button" class="boton-texto boton-texto-peligro" (click)="eliminarDisponibilidad(d)">
+                      Eliminar
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          
+
           <ng-template #sinHorarios>
             <p class="texto-tenue">Aún no se han registrado horarios.</p>
           </ng-template>
