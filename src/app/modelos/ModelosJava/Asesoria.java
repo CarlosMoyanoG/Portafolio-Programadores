@@ -10,7 +10,7 @@ public class Asesoria {
     
     ArrayList<String> opcionesAsesorias = new ArrayList<>();
     
-    int numero; // Actuará como ID
+    int numero; 
     int programadorId;
     String nombreCliente;
     String emailCliente;

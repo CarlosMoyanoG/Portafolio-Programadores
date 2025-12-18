@@ -1,0 +1,305 @@
+@startuml DiagramaUMLJavaPortafolio
+
+' Definición de colores y estilos
+!define ENTITY_COLOR #E1F5FE
+!define SERVICE_COLOR #F3E5F5
+!define DAO_COLOR #E8F5E9
+
+' ============================================
+' MODELOS (ENTITIES)
+' ============================================
+
+package "Modelos" {
+    class Usuario {
+        -id: int
+        -nombre: String
+        -email: String
+        -rol: String
+        -programadorId: int
+        -fotoUrl: String
+        -opcionesRol: ArrayList<String>
+        +getId(): int
+        +setId(id: int): void
+        +getNombre(): String
+        +setNombre(nombre: String): void
+        +getEmail(): String
+        +setEmail(email: String): void
+        +getRol(): String
+        +setRol(rol: String): void
+        +getProgramadorId(): int
+        +setProgramadorId(programadorId: int): void
+        +getFotoUrl(): String
+        +setFotoUrl(fotoUrl: String): void
+        +getOpcionesRol(): ArrayList
+        +setOpcionesRol(opciones: ArrayList): void
+    }
+
+    class Programador {
+        -id: int
+        -nombre: String
+        -especialidad: String
+        -descripcion: String
+        -fotoUrl: String
+        -emailContacto: String
+        -githubUrl: String
+        -linkedinUrl: String
+        -sitioWeb: String
+        -duenioUid: String
+        -proyectos: ArrayList<Proyecto>
+        +getId(): int
+        +setId(id: int): void
+        +getNombre(): String
+        +setNombre(nombre: String): void
+        +getEspecialidad(): String
+        +setEspecialidad(especialidad: String): void
+        +getDescripcion(): String
+        +setDescripcion(descripcion: String): void
+        +getFotoUrl(): String
+        +setFotoUrl(fotoUrl: String): void
+        +getEmailContacto(): String
+        +setEmailContacto(email: String): void
+        +getGithubUrl(): String
+        +setGithubUrl(url: String): void
+        +getLinkedinUrl(): String
+        +setLinkedinUrl(url: String): void
+        +getSitioWeb(): String
+        +setSitioWeb(url: String): void
+        +getDuenioUid(): String
+        +setDuenioUid(uid: String): void
+        +getProyectos(): ArrayList<Proyecto>
+        +setProyectos(proyectos: ArrayList): void
+    }
+
+    class Proyecto {
+        -id: int
+        -nombre: String
+        -descripcion: String
+        -seccion: String
+        -participacion: String
+        -tecnologias: ArrayList<String>
+        -repoUrl: String
+        -demoUrl: String
+        -opcionesSeccion: ArrayList<String>
+        -opcionesParticipacion: ArrayList<String>
+        +getId(): int
+        +setId(id: int): void
+        +getNombre(): String
+        +setNombre(nombre: String): void
+        +getDescripcion(): String
+        +setDescripcion(descripcion: String): void
+        +getSeccion(): String
+        +setSeccion(seccion: String): void
+        +getParticipacion(): String
+        +setParticipacion(participacion: String): void
+        +getTecnologias(): ArrayList<String>
+        +setTecnologias(tecnologias: ArrayList): void
+        +getRepoUrl(): String
+        +setRepoUrl(url: String): void
+        +getDemoUrl(): String
+        +setDemoUrl(url: String): void
+        +getOpcionesSeccion(): ArrayList
+        +setOpcionesSeccion(opciones: ArrayList): void
+        +getOpcionesParticipacion(): ArrayList
+        +setOpcionesParticipacion(opciones: ArrayList): void
+    }
+
+    class Asesoria {
+        -numero: int
+        -programadorId: int
+        -nombreCliente: String
+        -emailCliente: String
+        -fecha: String
+        -hora: String
+        -descripcionProyecto: String
+        -mensajeRespuesta: String
+        -opcionesAsesorias: ArrayList<String>
+        +getNumero(): int
+        +setNumero(numero: int): void
+        +getProgramadorId(): int
+        +setProgramadorId(programadorId: int): void
+        +getNombreCliente(): String
+        +setNombreCliente(nombre: String): void
+        +getEmailCliente(): String
+        +setEmailCliente(email: String): void
+        +getFecha(): String
+        +setFecha(fecha: String): void
+        +getHora(): String
+        +setHora(hora: String): void
+        +getDescripcionProyecto(): String
+        +setDescripcionProyecto(descripcion: String): void
+        +getMensajeRespuesta(): String
+        +setMensajeRespuesta(mensaje: String): void
+        +getOpcionesAsesorias(): ArrayList
+        +setOpcionesAsesorias(opciones: ArrayList): void
+    }
+
+    class Disponibilidad {
+        -id: int
+        -programadorId: int
+        -tipo: String
+        -diaSemana: int
+        -fecha: String
+        -horaInicio: String
+        -horaFin: String
+        -hora: String
+        -opcionesTipo: ArrayList<String>
+        +getId(): int
+        +setId(id: int): void
+        +getProgramadorId(): int
+        +setProgramadorId(programadorId: int): void
+        +getTipo(): String
+        +setTipo(tipo: String): void
+        +getDiaSemana(): int
+        +setDiaSemana(dia: int): void
+        +getFecha(): String
+        +setFecha(fecha: String): void
+        +getHoraInicio(): String
+        +setHoraInicio(hora: String): void
+        +getHoraFin(): String
+        +setHoraFin(hora: String): void
+        +getHora(): String
+        +setHora(hora: String): void
+        +getOpcionesTipo(): ArrayList
+        +setOpcionesTipo(opciones: ArrayList): void
+    }
+}
+
+' ============================================
+' SERVICIOS (Business Logic)
+' ============================================
+
+package "Servicios" {
+    class UsuarioServicio {
+        -dao: UsuarioDao
+        +crear(u: Usuario): Usuario
+        +obtenerTodos(): List<Usuario>
+        +obtenerPorId(id: int): Usuario
+        +actualizar(id: int, nuevosDatos: Usuario): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class ProgramadorServicio {
+        -dao: ProgramadorDao
+        +crear(p: Programador): Programador
+        +obtenerTodos(): List<Programador>
+        +obtenerPorId(id: int): Programador
+        +actualizar(id: int, nuevosDatos: Programador): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class ProyectoServicio {
+        -dao: ProyectoDao
+        +crear(p: Proyecto): Proyecto
+        +obtenerTodos(): List<Proyecto>
+        +obtenerPorId(id: int): Proyecto
+        +actualizar(id: int, nuevosDatos: Proyecto): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class AsesoriaServicio {
+        -dao: AsesoriaDao
+        +crear(a: Asesoria): Asesoria
+        +obtenerTodos(): List<Asesoria>
+        +obtenerPorId(numero: int): Asesoria
+        +actualizar(numero: int, nuevosDatos: Asesoria): boolean
+        +eliminar(numero: int): boolean
+    }
+
+    class DisponibilidadServicio {
+        -dao: DisponibilidadDao
+        +crear(d: Disponibilidad): Disponibilidad
+        +obtenerTodos(): List<Disponibilidad>
+        +obtenerPorId(id: int): Disponibilidad
+        +actualizar(id: int, nuevosDatos: Disponibilidad): boolean
+        +eliminar(id: int): boolean
+    }
+}
+
+' ============================================
+' DAO (Data Access Objects)
+' ============================================
+
+package "DAO" {
+    class UsuarioDao {
+        -tablaUsuarios: List<Usuario>
+        -contadorId: int
+        +insertar(u: Usuario): Usuario
+        +listar(): List<Usuario>
+        +buscarPorId(id: int): Usuario
+        +actualizar(u: Usuario): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class ProgramadorDao {
+        -tablaProgramadores: List<Programador>
+        -contadorId: int
+        +insertar(p: Programador): Programador
+        +listar(): List<Programador>
+        +buscarPorId(id: int): Programador
+        +actualizar(p: Programador): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class ProyectoDao {
+        -tablaProyectos: List<Proyecto>
+        -contadorId: int
+        +insertar(p: Proyecto): Proyecto
+        +listar(): List<Proyecto>
+        +buscarPorId(id: int): Proyecto
+        +actualizar(p: Proyecto): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class AsesoriaDao {
+        -tablaAsesorias: List<Asesoria>
+        -contadorId: int
+        +insertar(a: Asesoria): Asesoria
+        +listar(): List<Asesoria>
+        +buscarPorId(id: int): Asesoria
+        +actualizar(a: Asesoria): boolean
+        +eliminar(id: int): boolean
+    }
+
+    class DisponibilidadDao {
+        -tablaDisponibilidad: List<Disponibilidad>
+        -contadorId: int
+        +insertar(d: Disponibilidad): Disponibilidad
+        +listar(): List<Disponibilidad>
+        +buscarPorId(id: int): Disponibilidad
+        +actualizar(d: Disponibilidad): boolean
+        +eliminar(id: int): boolean
+    }
+}
+
+' ============================================
+' RELACIONES
+' ============================================
+
+' Servicios usan DAOs (Dependency)
+UsuarioServicio --> UsuarioDao : usa
+ProgramadorServicio --> ProgramadorDao : usa
+ProyectoServicio --> ProyectoDao : usa
+AsesoriaServicio --> AsesoriaDao : usa
+DisponibilidadServicio --> DisponibilidadDao : usa
+
+' DAOs manejan Modelos (Works with)
+UsuarioDao --> Usuario : CRUD
+ProgramadorDao --> Programador : CRUD
+ProyectoDao --> Proyecto : CRUD
+AsesoriaDao --> Asesoria : CRUD
+DisponibilidadDao --> Disponibilidad : CRUD
+
+' Servicios operan con Modelos (Uses)
+UsuarioServicio --> Usuario : opera
+ProgramadorServicio --> Programador : opera
+ProyectoServicio --> Proyecto : opera
+AsesoriaServicio --> Asesoria : opera
+DisponibilidadServicio --> Disponibilidad : opera
+
+' Relaciones entre Modelos
+Programador "1" --> "*" Proyecto : contiene
+Usuario "1" --> "0..1" Programador : pertenece a
+Programador "1" --> "*" Disponibilidad : tiene
+Programador "1" --> "*" Asesoria : recibe
+
+@enduml

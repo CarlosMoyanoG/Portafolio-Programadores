@@ -1,7 +1,7 @@
 package app.servicios.ServiciosJava;
 
+import app.dao.ProgramadorDao;
 import app.modelos.ModelosJava.Programador;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,34 +11,24 @@ import java.util.List;
 
 public class ProgramadorServicio {
 
-    private List<Programador> baseDeDatos = new ArrayList<>();
-    private int contadorId = 1;
-    
-    // CREAR
+    private final ProgramadorDao dao = new ProgramadorDao();
+
     public Programador crear(Programador p) {
-        p.setId(contadorId++);
-        baseDeDatos.add(p);
-        System.out.println("Programador creado con ID: " + p.getId());
-        return p;
+        Programador creado = dao.insertar(p);
+        System.out.println("Programador creado con ID: " + creado.getId());
+        return creado;
     }
 
-    // LEER
     public List<Programador> obtenerTodos() {
-        return baseDeDatos;
+        return dao.listar();
     }
 
     public Programador obtenerPorId(int id) {
-        for (Programador p : baseDeDatos) {
-            if (p.getId() == id) {
-                return p;
-            }
-        }
-        return null;
+        return dao.buscarPorId(id);
     }
 
-    // ACTUALIZAR
     public boolean actualizar(int id, Programador nuevosDatos) {
-        Programador actual = obtenerPorId(id);
+        Programador actual = dao.buscarPorId(id);
         
         if (actual != null) {
             actual.setNombre(nuevosDatos.getNombre());
@@ -51,8 +41,9 @@ public class ProgramadorServicio {
             actual.setSitioWeb(nuevosDatos.getSitioWeb());
             actual.setDuenioUid(nuevosDatos.getDuenioUid());
             
-            // También actualizamos la lista de proyectos si viene en los nuevos datos
             actual.setProyectos(nuevosDatos.getProyectos());
+            
+            dao.actualizar(actual);
             
             System.out.println("Programador ID " + id + " actualizado correctamente.");
             return true;
@@ -62,15 +53,13 @@ public class ProgramadorServicio {
         }
     }
 
-    // ELIMINAR
     public boolean eliminar(int id) {
-        Programador p = obtenerPorId(id);
-        if (p != null) {
-            baseDeDatos.remove(p);
+        boolean eliminado = dao.eliminar(id);
+        if (eliminado) {
             System.out.println("Programador ID " + id + " eliminado.");
-            return true;
+        } else {
+            System.out.println("No se puede eliminar, ID no encontrado.");
         }
-        System.out.println("No se puede eliminar, ID no encontrado.");
-        return false;
+        return eliminado;
     }
 }

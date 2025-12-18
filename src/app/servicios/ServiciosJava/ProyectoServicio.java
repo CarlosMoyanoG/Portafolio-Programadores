@@ -1,7 +1,7 @@
 package app.servicios.ServiciosJava;
 
+import app.dao.ProyectoDao;
 import app.modelos.ModelosJava.Proyecto;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,52 +11,39 @@ import java.util.List;
 
 public class ProyectoServicio {
 
-    private List<Proyecto> baseDeDatos = new ArrayList<>();
-    private int contadorId = 1;
+    private final ProyectoDao dao = new ProyectoDao();
 
-    // CREAR
     public Proyecto crear(Proyecto p) {
-        // Validar Sección
         if (!p.getOpcionesSeccion().contains(p.getSeccion())) {
             System.out.println("Error: Sección no válida (" + p.getSeccion() + ")");
             return null;
         }
 
-        // Validar Participación
         if (!p.getOpcionesParticipacion().contains(p.getParticipacion())) {
             System.out.println("Error: Participación no válida (" + p.getParticipacion() + ")");
             return null;
         }
 
-        p.setId(contadorId++);
-        baseDeDatos.add(p);
-        System.out.println("Proyecto creado con ID: " + p.getId());
-        return p;
+        Proyecto creado = dao.insertar(p);
+        System.out.println("Proyecto creado con ID: " + creado.getId());
+        return creado;
     }
 
-    // LEER
     public List<Proyecto> obtenerTodos() {
-        return baseDeDatos;
+        return dao.listar();
     }
 
     public Proyecto obtenerPorId(int id) {
-        for (Proyecto p : baseDeDatos) {
-            if (p.getId() == id) {
-                return p;
-            }
-        }
-        return null;
+        return dao.buscarPorId(id);
     }
 
-    // ACTUALIZAR
     public boolean actualizar(int id, Proyecto nuevosDatos) {
-        Proyecto actual = obtenerPorId(id);
+        Proyecto actual = dao.buscarPorId(id);
         
         if (actual != null) {
             actual.setNombre(nuevosDatos.getNombre());
             actual.setDescripcion(nuevosDatos.getDescripcion());
             
-            // Validamos antes de actualizar campos restringidos
             if (actual.getOpcionesSeccion().contains(nuevosDatos.getSeccion())) {
                 actual.setSeccion(nuevosDatos.getSeccion());
             }
@@ -69,6 +56,8 @@ public class ProyectoServicio {
             actual.setRepoUrl(nuevosDatos.getRepoUrl());
             actual.setDemoUrl(nuevosDatos.getDemoUrl());
             
+            dao.actualizar(actual);
+            
             System.out.println("Proyecto ID " + id + " actualizado correctamente.");
             return true;
         } else {
@@ -77,15 +66,13 @@ public class ProyectoServicio {
         }
     }
 
-    // ELIMINAR
     public boolean eliminar(int id) {
-        Proyecto p = obtenerPorId(id);
-        if (p != null) {
-            baseDeDatos.remove(p);
+        boolean eliminado = dao.eliminar(id);
+        if (eliminado) {
             System.out.println("Proyecto ID " + id + " eliminado.");
-            return true;
+        } else {
+            System.out.println("No se puede eliminar, ID no encontrado.");
         }
-        System.out.println("No se puede eliminar, ID no encontrado.");
-        return false;
+        return eliminado;
     }
 }

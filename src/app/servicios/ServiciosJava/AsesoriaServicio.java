@@ -1,6 +1,7 @@
 package app.servicios.ServiciosJava;
+
+import app.dao.AsesoriaDao;
 import app.modelos.ModelosJava.Asesoria;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,37 +11,24 @@ import java.util.List;
 
 public class AsesoriaServicio {
 
-    private final List<Asesoria> baseDeDatos = new ArrayList<>();
-    private int contadorId = 1;
+    private final AsesoriaDao dao = new AsesoriaDao();
     
-    // CREAR
-
     public Asesoria crear(Asesoria a) {
-        // Asignamos el ID automático al campo 'numero'
-        a.setNumero(contadorId++); 
-        baseDeDatos.add(a);
-        System.out.println("Asesoría creada con Numero (ID): " + a.getNumero());
-        return a;
+        Asesoria creada = dao.insertar(a);
+        System.out.println("Asesoría creada con Numero (ID): " + creada.getNumero());
+        return creada;
     }
 
-    // LEER
-    
     public List<Asesoria> obtenerTodos() {
-        return baseDeDatos;
+        return dao.listar();
     }
 
     public Asesoria obtenerPorId(int numero) {
-        for (Asesoria a : baseDeDatos) {
-            if (a.getNumero() == numero) {
-                return a;
-            }
-        }
-        return null;
+        return dao.buscarPorId(numero);
     }
 
-    // ACTUALIZAR
     public boolean actualizar(int numero, Asesoria nuevosDatos) {
-        Asesoria actual = obtenerPorId(numero);
+        Asesoria actual = dao.buscarPorId(numero);
         
         if (actual != null) {
             actual.setProgramadorId(nuevosDatos.getProgramadorId());
@@ -51,6 +39,8 @@ public class AsesoriaServicio {
             actual.setDescripcionProyecto(nuevosDatos.getDescripcionProyecto());
             actual.setMensajeRespuesta(nuevosDatos.getMensajeRespuesta());
             
+            dao.actualizar(actual);
+            
             System.out.println("Asesoría Numero " + numero + " actualizada correctamente.");
             return true;
         } else {
@@ -59,15 +49,13 @@ public class AsesoriaServicio {
         }
     }
 
-    // ELIMINAR
     public boolean eliminar(int numero) {
-        Asesoria a = obtenerPorId(numero);
-        if (a != null) {
-            baseDeDatos.remove(a);
+        boolean eliminado = dao.eliminar(numero);
+        if (eliminado) {
             System.out.println("Asesoría Numero " + numero + " eliminada.");
-            return true;
+        } else {
+            System.out.println("No se puede eliminar, Numero no encontrado.");
         }
-        System.out.println("No se puede eliminar, Numero no encontrado.");
-        return false;
+        return eliminado;
     }
 }

@@ -1,10 +1,8 @@
 package app.servicios.ServiciosJava;
 
+import app.dao.DisponibilidadDao;
 import app.modelos.ModelosJava.Disponibilidad;
-import java.util.ArrayList;
 import java.util.List;
-
-
 
 /**
  *
@@ -13,10 +11,7 @@ import java.util.List;
 
 public class DisponibilidadServicio {
 
-    private final List<Disponibilidad> baseDeDatos = new ArrayList<>();
-    private int contadorId = 1;
-    
-    // CREAR
+    private final DisponibilidadDao dao = new DisponibilidadDao();
 
     public Disponibilidad crear(Disponibilidad d) {
         if (!d.getOpcionesTipo().contains(d.getTipo())) {
@@ -24,33 +19,25 @@ public class DisponibilidadServicio {
             return null;
         }
 
-        d.setId(contadorId++); 
-        baseDeDatos.add(d);
-        System.out.println("Disponibilidad creada con ID: " + d.getId());
-        return d;
+        Disponibilidad creada = dao.insertar(d);
+        System.out.println("Disponibilidad creada con ID: " + creada.getId());
+        return creada;
     }
 
-    // LEER
-    
     public List<Disponibilidad> obtenerTodos() {
-        return baseDeDatos;
+        return dao.listar();
     }
 
     public Disponibilidad obtenerPorId(int id) {
-        for (Disponibilidad d : baseDeDatos) {
-            if (d.getId() == id) {
-                return d;
-            }
-        }
-        return null;
+        return dao.buscarPorId(id);
     }
 
-    // ACTUALIZAR
     public boolean actualizar(int id, Disponibilidad nuevosDatos) {
-        Disponibilidad actual = obtenerPorId(id);
+        Disponibilidad actual = dao.buscarPorId(id);
         
         if (actual != null) {
             actual.setProgramadorId(nuevosDatos.getProgramadorId());
+            
             if (actual.getOpcionesTipo().contains(nuevosDatos.getTipo())) {
                 actual.setTipo(nuevosDatos.getTipo());
             }
@@ -61,6 +48,8 @@ public class DisponibilidadServicio {
             actual.setHoraFin(nuevosDatos.getHoraFin());
             actual.setHora(nuevosDatos.getHora());
             
+            dao.actualizar(actual);
+            
             System.out.println("Disponibilidad ID " + id + " actualizada correctamente.");
             return true;
         } else {
@@ -69,15 +58,13 @@ public class DisponibilidadServicio {
         }
     }
 
-    // ELIMINAR
     public boolean eliminar(int id) {
-        Disponibilidad d = obtenerPorId(id);
-        if (d != null) {
-            baseDeDatos.remove(d);
+        boolean eliminado = dao.eliminar(id);
+        if (eliminado) {
             System.out.println("Disponibilidad ID " + id + " eliminada.");
-            return true;
+        } else {
+            System.out.println("No se puede eliminar, ID no encontrado.");
         }
-        System.out.println("No se puede eliminar, ID no encontrado.");
-        return false;
+        return eliminado;
     }
 }

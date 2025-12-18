@@ -1,8 +1,9 @@
 package app.servicios.ServiciosJava;
 
+import app.dao.UsuarioDao;
 import app.modelos.ModelosJava.Usuario;
-import java.util.ArrayList;
 import java.util.List;
+
 /**
  *
  * @author Carlos Moyano
@@ -10,52 +11,42 @@ import java.util.List;
 
 public class UsuarioServicio {
 
-    private List<Usuario> baseDeDatos = new ArrayList<>();
-    private int contadorId = 1;
+    private final UsuarioDao dao = new UsuarioDao();
     
-    // CREAR
     public Usuario crear(Usuario u) {
-        // Validar Rol
         if (!u.getOpcionesRol().contains(u.getRol())) {
             System.out.println("Error: Rol no válido (" + u.getRol() + ")");
             return null;
         }
 
-        u.setId(contadorId++);
-        baseDeDatos.add(u);
-        System.out.println("Usuario creado con ID: " + u.getId());
-        return u;
+        Usuario creado = dao.insertar(u);
+        System.out.println("Usuario creado con ID: " + creado.getId());
+        return creado;
     }
 
-    // LEER
     public List<Usuario> obtenerTodos() {
-        return baseDeDatos;
+        return dao.listar();
     }
 
     public Usuario obtenerPorId(int id) {
-        for (Usuario u : baseDeDatos) {
-            if (u.getId() == id) {
-                return u;
-            }
-        }
-        return null;
+        return dao.buscarPorId(id);
     }
 
-    // ACTUALIZAR
     public boolean actualizar(int id, Usuario nuevosDatos) {
-        Usuario actual = obtenerPorId(id);
+        Usuario actual = dao.buscarPorId(id);
         
         if (actual != null) {
             actual.setNombre(nuevosDatos.getNombre());
             actual.setEmail(nuevosDatos.getEmail());
             
-            // Validamos antes de actualizar el rol
             if (actual.getOpcionesRol().contains(nuevosDatos.getRol())) {
                 actual.setRol(nuevosDatos.getRol());
             }
 
             actual.setProgramadorId(nuevosDatos.getProgramadorId());
             actual.setFotoUrl(nuevosDatos.getFotoUrl());
+            
+            dao.actualizar(actual);
             
             System.out.println("Usuario ID " + id + " actualizado correctamente.");
             return true;
@@ -65,15 +56,13 @@ public class UsuarioServicio {
         }
     }
 
-    // ELIMINAR
     public boolean eliminar(int id) {
-        Usuario u = obtenerPorId(id);
-        if (u != null) {
-            baseDeDatos.remove(u);
+        boolean eliminado = dao.eliminar(id);
+        if (eliminado) {
             System.out.println("Usuario ID " + id + " eliminado.");
-            return true;
+        } else {
+            System.out.println("No se puede eliminar, ID no encontrado.");
         }
-        System.out.println("No se puede eliminar, ID no encontrado.");
-        return false;
+        return eliminado;
     }
 }
